@@ -1,0 +1,20 @@
+# Raw and processed datasets
+data/raw/
+data/processed/
+
+# Python environments
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
+
+# Spark temporary files
+spark-warehouse/
+*.crc
+
+# HPC logs
+*.o[0-9]*
+*.e[0-9]*
