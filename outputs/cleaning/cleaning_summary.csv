@@ -1,0 +1,9 @@
+year,input_rows,shifted_timestamps,alignment_collision_groups,collision_rows_removed,station_name_rows_standardized,output_rows,output_path
+2017,5256106,1775327,86,86,24507,5256020,/scratch/e0969984/singapore-rainfall-analysis-and-prediction/data/processed/rainfall_2017
+2018,4594246,0,0,0,0,4594246,/scratch/e0969984/singapore-rainfall-analysis-and-prediction/data/processed/rainfall_2018
+2019,5026862,0,0,0,0,5026862,/scratch/e0969984/singapore-rainfall-analysis-and-prediction/data/processed/rainfall_2019
+2020,6334473,0,0,0,1281421,6334473,/scratch/e0969984/singapore-rainfall-analysis-and-prediction/data/processed/rainfall_2020
+2021,7044646,0,0,0,2485344,7044646,/scratch/e0969984/singapore-rainfall-analysis-and-prediction/data/processed/rainfall_2021
+2022,7133230,0,0,0,2515994,7133230,/scratch/e0969984/singapore-rainfall-analysis-and-prediction/data/processed/rainfall_2022
+2023,6742890,0,0,0,2447328,6742890,/scratch/e0969984/singapore-rainfall-analysis-and-prediction/data/processed/rainfall_2023
+2024,6406260,0,0,0,1419465,6406260,/scratch/e0969984/singapore-rainfall-analysis-and-prediction/data/processed/rainfall_2024

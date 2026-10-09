@@ -1,0 +1,119 @@
+station_id,original_name,standard_name,observations,name_changed
+S06,Paya Lebar,Paya Lebar,15634,0
+S06,S06,Paya Lebar,24507,1
+S07,Lornie Road,Lornie Road,554703,0
+S08,Upper Thomson Road,Upper Thomson Road,787572,0
+S100,Woodlands Road,Woodlands Road,621234,0
+S101,Corporation Road,Corporation Road,169959,0
+S102,Semakau Landfill,Semakau Landfill,181592,0
+S103,Dairy Farm Road,Dairy Farm Road,45,0
+S104,Woodlands Avenue 9,Woodlands Avenue 9,762063,0
+S105,Admiralty Road West,Admiralty Road West,109009,0
+S106,Pulau Ubin,Pulau Ubin,620780,0
+S107,East Coast Parkway,East Coast Parkway,794533,0
+S108,Marina Gardens Drive,Marina Gardens Drive,606751,0
+S109,Ang Mo Kio Avenue 5,Ang Mo Kio Avenue 5,750767,0
+S11,Choa Chu Kang Road,Choa Chu Kang Road,472193,0
+S110,Serangoon North Avenue 4,Serangoon North Avenue 4,27573,0
+S111,Scotts Road,Scotts Road,721853,0
+S112,Lim Chu Kang Road,Lim Chu Kang Road,763679,0
+S113,Marine Parade Road,Marine Parade Road,801783,0
+S114,Choa Chu Kang Avenue 4,Choa Chu Kang Avenue 4,777971,0
+S115,Tuas South Avenue 3,Tuas South Avenue 3,771482,0
+S116,West Coast Highway,West Coast Highway,783256,0
+S117,Banyan Road,Banyan Road,568651,0
+S118,Handy Road,Handy Road,688316,0
+S119,Nicoll Highway,Nicoll Highway,791256,0
+S120,Holland Road,Holland Road,733368,0
+S121,Old Choa Chu Kang Road,Old Choa Chu Kang Road,779986,0
+S122,Sembawang Road,Sembawang Road,382247,0
+S123,Towner Road,Towner Road,771930,0
+S201,Clementi Park,Clementi Park,47649,0
+S201,S201,Clementi Park,422634,1
+S202,S202,S202,276164,0
+S203,Pasir Panjang,Pasir Panjang,42562,0
+S203,S203,Pasir Panjang,417506,1
+S204,S204,S204,345437,0
+S205,S205,S205,315754,0
+S207,Bedok Road,Bedok Road,47657,0
+S207,S207,Bedok Road,420208,1
+S208,Changi East Close,Changi East Close,47638,0
+S208,S208,Changi East Close,422659,1
+S209,S209,Yishun Ring Road,418287,1
+S209,Yishun Ring Road,Yishun Ring Road,47654,0
+S210,S210,Woodlands Centre,416789,1
+S210,Woodlands Centre,Woodlands Centre,47641,0
+S211,Kranji Road,Kranji Road,47585,0
+S211,S211,Kranji Road,418034,1
+S212,S212,Tampines Avenue 9,421848,1
+S212,Tampines Avenue 9,Tampines Avenue 9,5056,0
+S213,Coronation Walk,Coronation Walk,47133,0
+S213,S213,Coronation Walk,421625,1
+S214,S214,Tanjong Rhu,419086,1
+S214,Tanjong Rhu,Tanjong Rhu,47654,0
+S215,GEYLANG EAST CENTRAL,GEYLANG EAST CENTRAL,624261,0
+S215,Geylang East Central,GEYLANG EAST CENTRAL,47655,1
+S216,Ang Mo Kio Ave 10,Ang Mo Kio Avenue 10,1,1
+S216,Ang Mo Kio Avenue 10,Ang Mo Kio Avenue 10,47652,0
+S216,S216,Ang Mo Kio Avenue 10,420885,1
+S217,Bishan Street 13,Bishan Street 13,47606,0
+S217,S217,Bishan Street 13,422144,1
+S218,Bukit Batok Street 34,Bukit Batok Street 34,47653,0
+S218,S218,Bukit Batok Street 34,422551,1
+S219,S219,Yio Chu Kang Road,422287,1
+S219,Yio Chu Kang Road,Yio Chu Kang Road,47652,0
+S220,Compassvale Lane,Compassvale Lane,47638,0
+S220,S220,Compassvale Lane,422669,1
+S221,Hougang Avenue 1,Hougang Avenue 1,47610,0
+S221,S221,Hougang Avenue 1,422663,1
+S222,Henderson Road,Henderson Road,47586,0
+S222,S222,Henderson Road,422677,1
+S223,Margaret Drive,Margaret Drive,47633,0
+S223,S223,Margaret Drive,420504,1
+S224,Airport Boulevard,Airport Boulevard,47629,0
+S224,S224,Airport Boulevard,421121,1
+S226,Malan Road,Malan Road,47447,0
+S226,S226,Malan Road,419807,1
+S227,S227,Woodlands Drive 62,421660,1
+S227,Woodlands Drive 62,Woodlands Drive 62,47654,0
+S228,Jurong West Street 73,Jurong West Street 73,47653,0
+S228,S228,Jurong West Street 73,420329,1
+S229,Jurong West Street 42,Jurong West Street 42,47648,0
+S229,S229,Jurong West Street 42,422397,1
+S230,S230,West Coast Road,421526,1
+S230,West Coast Road,West Coast Road,47652,0
+S24,Upper Changi Road North,Upper Changi Road North,798983,0
+S24B,Upper Changi Road North,Upper Changi Road North,32648,0
+S29,Pasir Ris Drive 12,Pasir Ris Drive 12,378666,0
+S33,Jurong Pier Road,Jurong Pier Road,779417,0
+S35,Old Toh Tuck Road,Old Toh Tuck Road,775748,0
+S36,Upper Serangoon Road,Upper Serangoon Road,270637,0
+S40,Mandai Lake Road,Mandai Lake Road,795387,0
+S43,Kim Chuan Road,Kim Chuan Road,801008,0
+S44,Nanyang Avenue,Nanyang Avenue,759978,0
+S46,Sime Road,Sime Road,355820,0
+S50,Clementi Road,Clementi Road,784187,0
+S55,Buangkok Green,Buangkok Green,206417,0
+S60,Sentosa,Sentosa,535486,0
+S61,Chai Chee Street,Chai Chee Street,446071,0
+S63,International Road,International Road,93890,0
+S64,Bukit Panjang Road,Bukit Panjang Road,540807,0
+S66,Kranji Way,Kranji Way,786621,0
+S69,Upper Peirce Reservoir Park,Upper Peirce Reservoir Park,756031,0
+S71,Kent Ridge Road,Kent Ridge Road,751768,0
+S72,Prince Edward Road,Prince Edward Road,33,0
+S77,Alexandra Road,Alexandra Road,807540,0
+S78,Poole Road,Poole Road,806996,0
+S79,Somerset Road,Somerset Road,790244,0
+S81,Punggol Central,Punggol Central,808381,0
+S82,Tuas West Road,Tuas West Road,494758,0
+S84,Simei Avenue,Simei Avenue,760510,0
+S88,Toa Payoh North,Toa Payoh North,803891,0
+S89,Tuas Road,Tuas Road,800048,0
+S90,Bukit Timah Road,Bukit Timah Road,801881,0
+S900,Seletar Aerospace View,Seletar Aerospace View,801245,0
+S91,Yishun Avenue 5,Yishun Avenue 5,346468,0
+S92,South Buona Vista Road,South Buona Vista Road,395407,0
+S94,Pasir Ris Street 51,Pasir Ris Street 51,800299,0
+S96,Tanah Merah Coast Road,Tanah Merah Coast Road,30633,0
+S97,Pioneer Sector 2,Pioneer Sector 2,6,0
