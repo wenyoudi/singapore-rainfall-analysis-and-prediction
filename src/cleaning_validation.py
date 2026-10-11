@@ -63,8 +63,11 @@ def main():
                 F.sum(F.when(invalid_station, 1).otherwise(0)).alias('invalid_station_ids'),
                 F.sum(F.when(invalid_name, 1).otherwise(0)).alias('invalid_station_names'),
                 F.sum(F.when(F.col('timestamp').isNull(), 1).otherwise(0)).alias('null_timestamps'),
+                F.sum(F.when(F.year('timestamp') != year, 1).otherwise(0)).alias('wrong_year'),
                 F.sum(F.when(F.col('_epoch').isNotNull() &
-                            ((F.col('_epoch') % F.lit(300)) != 0), 1).otherwise(0)).alias('off_grid'),
+                            (((F.col('_epoch') % F.lit(300)) != 0) |
+                             (F.col('timestamp').cast('double') != F.col('_epoch'))), 1)
+                      .otherwise(0)).alias('off_grid'),
                 F.sum(F.when(invalid_rain, 1).otherwise(0)).alias('invalid_rainfall'),
                 F.sum(F.when(invalid_coord, 1).otherwise(0)).alias('invalid_coordinates'),
                 F.min('timestamp').alias('first_timestamp'),
@@ -79,8 +82,10 @@ def main():
                              row_count_matches_summary=(aggregate['rows'] == expected[year])
                              if year in expected else 'not_checked')
             annual.append(aggregate)
+            if not aggregate['rows']:
+                failures.append('%d: empty cleaned dataset' % year)
             for key in ('invalid_station_ids', 'invalid_station_names', 'null_timestamps',
-                        'off_grid', 'invalid_rainfall', 'invalid_coordinates', 'duplicate_extra_rows'):
+                        'wrong_year', 'off_grid', 'invalid_rainfall', 'invalid_coordinates', 'duplicate_extra_rows'):
                 if aggregate[key]:
                     failures.append('%d: %s = %s' % (year, key, aggregate[key]))
             if year in expected and aggregate['rows'] != expected[year]:
@@ -142,7 +147,7 @@ def main():
         save('final_validation_summary.csv', annual,
              ['year', 'rows', 'stations', 'first_timestamp', 'last_timestamp',
               'invalid_station_ids', 'invalid_station_names', 'null_timestamps',
-              'off_grid', 'invalid_rainfall', 'invalid_coordinates',
+              'wrong_year', 'off_grid', 'invalid_rainfall', 'invalid_coordinates',
               'duplicate_extra_rows', 'expected_output_rows', 'row_count_matches_summary'])
         save('station_coverage_summary.csv', coverage,
              ['year', 'station_id', 'station_name', 'observed_intervals',
@@ -159,6 +164,8 @@ def main():
         for issue in failures:
             print(' -', issue, flush=True)
         print('Coverage gaps and coordinate variants are reported, not automatically treated as failures.')
+        if failures:
+            raise ValueError('Cleaned-data validation failed; see outputs/validation/validation_issues.csv')
     finally:
         spark.stop()
 

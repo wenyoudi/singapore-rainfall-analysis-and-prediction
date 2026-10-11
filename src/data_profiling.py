@@ -15,30 +15,14 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "data" / "raw"
 OUTPUT_DIR = PROJECT_ROOT / "outputs" / "profiling"
 
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
 YEARS = range(2017, 2025)
-
-
-# ============================================================
-# 2. Initialize Spark
-# ============================================================
-
-spark = (
-    SparkSession.builder
-    .appName("RainfallProfiling")
-    .config("spark.sql.shuffle.partitions", "32")
-    .getOrCreate()
-)
-
-spark.sparkContext.setLogLevel("WARN")
 
 
 # ============================================================
 # 3. Helper: Load annual dataset
 # ============================================================
 
-def load_data(year):
+def load_data(spark, year):
 
     file_path = (
         DATA_DIR /
@@ -98,6 +82,9 @@ def profile_year(df, year):
         F.sum(
             F.when(F.col("rainfall") < 0, 1).otherwise(0)
         ).alias("negative_rainfall"),
+
+        F.sum(F.when(F.isnan('rainfall') | (F.abs('rainfall') == float('inf')), 1)
+              .otherwise(0)).alias('nonfinite_rainfall'),
 
         F.sum(
             F.when(
@@ -271,28 +258,22 @@ def save_summary(results):
 
 def main():
 
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    spark = (SparkSession.builder.appName('RainfallProfiling')
+             .config('spark.sql.shuffle.partitions', '32')
+             .config('spark.sql.session.timeZone', 'Asia/Singapore').getOrCreate())
+    spark.sparkContext.setLogLevel('WARN')
     results = []
-
-    for year in YEARS:
-
-        df = load_data(year)
-
-        print(f"Profiling {year}...")
-
-        result = profile_year(df, year)
-
-        results.append(result)
-
-        # Save completed years immediately
-        save_summary(results)
-
-        print(
-            f"{year}: "
-            f"{result['total_rows']:,} rows, "
-            f"{result['stations']} stations"
-        )
-
-    spark.stop()
+    try:
+        for year in YEARS:
+            df = load_data(spark, year)
+            print(f'Profiling {year}...')
+            result = profile_year(df, year)
+            results.append(result)
+            save_summary(results)
+            print(f"{year}: {result['total_rows']:,} rows, {result['stations']} stations")
+    finally:
+        spark.stop()
 
 
 if __name__ == "__main__":

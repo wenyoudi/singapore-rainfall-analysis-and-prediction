@@ -6,9 +6,8 @@ Rainfall is a 5-minute amount (mm), NOT an hourly intensity.
 """
 from pathlib import Path
 import csv
-import math
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import datetime
 from pyspark.sql import SparkSession, functions as F
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -82,6 +81,22 @@ def enrich_coverage(rows):
     return rows
 
 
+def validate_input(df, year):
+    """Protect coverage denominators when EDA is run independently of validation."""
+    invalid = (F.col('timestamp').isNull() | F.col('station_id').isNull() |
+               (F.trim('station_id') == '') | F.col('rainfall').isNull() |
+               F.isnan('rainfall') | (F.col('rainfall') < 0) |
+               (F.abs('rainfall') == float('inf')) | (F.year('timestamp') != year) |
+               (F.col('timestamp').cast('long') % 300 != 0) |
+               (F.col('timestamp').cast('double') != F.col('timestamp').cast('long')))
+    if df.where(invalid).limit(1).count():
+        raise ValueError('Invalid or off-grid input in %d: rerun cleaning and validation' % year)
+    if df.groupBy('station_id', 'timestamp').count().where(F.col('count') > 1).limit(1).count():
+        raise ValueError('Duplicate station-timestamp input in %d' % year)
+    if not df.limit(1).count():
+        raise ValueError('Empty input in %d' % year)
+
+
 def main():
     OUTPUT.mkdir(parents=True, exist_ok=True)
     spark = (SparkSession.builder.appName('SingaporeRainfallEDA')
@@ -101,16 +116,12 @@ def main():
                 raise ValueError('Year %d missing columns: %s' % (year, sorted(absent)))
             df = df.select('timestamp', 'station_id', 'station_name', 'rainfall',
                            'location_latitude', 'location_longitude')
-            invalid = (F.col('timestamp').isNull() | F.col('station_id').isNull() |
-                       F.col('rainfall').isNull() | F.isnan('rainfall') |
-                       (F.col('rainfall') < 0) | (F.abs('rainfall') == float('inf')))
-            if df.where(invalid).limit(1).count():
-                raise ValueError('Invalid input found in %d: rerun validation' % year)
             df = (df.withColumn('year', F.lit(year))
                   .withColumn('month', F.month('timestamp'))
                   .withColumn('hour', F.hour('timestamp'))
                   .persist())
             try:
+                validate_input(df, year)
                 annual = collect_dicts(metrics(df, ['year']))
                 tables['annual'].extend(annual)
                 tables['monthly'].extend(collect_dicts(metrics(df, ['year', 'month'])))
@@ -120,7 +131,7 @@ def main():
                 # Spatial coordinates: median of recorded values per station-year.
                 # Handles the known small S113 coordinate variation without rewriting source.
                 loc = df.groupBy('station_id').agg(
-                    F.first('station_name', ignorenulls=True).alias('station_name'),
+                    F.min('station_name').alias('station_name'),
                     F.expr('percentile_approx(location_latitude, 0.5)').alias('latitude'),
                     F.expr('percentile_approx(location_longitude, 0.5)').alias('longitude'))
                 for r in collect_dicts(loc):
@@ -168,7 +179,8 @@ def main():
             ('station_locations', 'station_locations.csv'),
             ('positive_percentiles', 'positive_rainfall_percentiles.csv'),
             ('positive_histogram', 'positive_rainfall_histogram.csv')]:
-            rows = tables[key]
+            rows = sorted(tables[key], key=lambda r: tuple(r.get(k, '') for k in
+                          ('year', 'month', 'hour', 'station_id', 'bin_id')))
             if rows:
                 write_csv(filename, rows, list(rows[0].keys()))
         print('EDA aggregation complete. Annual sums are network totals, NOT Singapore annual rainfall.', flush=True)

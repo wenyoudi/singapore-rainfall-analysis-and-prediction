@@ -5,15 +5,17 @@ Local plotting only; no Spark required.
 Inputs:
   outputs/figures/eda/spatial_balanced_station_summary.csv
   outputs/eda/station_year_rainfall_stats.csv
-Uses the SAME 56 stations and 2021-2024 eligible station-years in both panels.
+Uses a shared, explicit period and coverage rule for both panels.
+Station counts are derived from the input summaries, never hard-coded.
 
-Install: pip install pandas numpy matplotlib scipy geopandas shapely pyproj requests
-Run: python src/plot_singapore_rainfall_map.py
+Install: pip install -r requirements-plots.txt
+Run: python src/plot_map.py
 Optional: --boundary data/geography/singapore_adm0.geojson
 """
 from __future__ import annotations
 import argparse
 import json
+import hashlib
 from pathlib import Path
 
 import geopandas as gpd
@@ -22,42 +24,12 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import requests
+from task1_analysis import SPATIAL_YEARS, spatial_summary
 from scipy.spatial import cKDTree
 from shapely.geometry import Point
 from shapely.prepared import prep
 
-API = 'https://www.geoboundaries.org/api/current/gbOpen/SGP/ADM0/'
 CRS = 'EPSG:3414'
-YEARS = (2021, 2022, 2023, 2024)
-
-
-def download_boundary(path: Path) -> Path:
-    if path.is_file():
-        return path
-    print('Downloading Singapore ADM0 boundary from geoBoundaries...', flush=True)
-    try:
-        response = requests.get(API, timeout=35)
-        response.raise_for_status()
-        metadata = response.json()
-        url = metadata.get('simplifiedGeometryGeoJSON') or metadata.get('gjDownloadURL')
-        if not url:
-            raise RuntimeError('No GeoJSON download URL returned')
-        geo = requests.get(url, timeout=90)
-        geo.raise_for_status()
-        payload = geo.json()
-        if payload.get('type') not in ('FeatureCollection', 'Feature', 'Polygon', 'MultiPolygon'):
-            raise ValueError('Unexpected GeoJSON format')
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(payload), encoding='utf-8')
-        (path.parent / 'singapore_boundary_source.json').write_text(
-            json.dumps({k: metadata.get(k) for k in ('boundaryName', 'boundarySource',
-                'boundaryLicense', 'boundaryYearRepresented', 'boundaryID',
-                'gjDownloadURL', 'simplifiedGeometryGeoJSON')}, indent=2), encoding='utf-8')
-        return path
-    except Exception as exc:
-        raise RuntimeError('Could not download boundary; use --boundary PATH to a Singapore GeoJSON. '
-                           f'Original error: {exc}') from exc
 
 
 def idw(tree, values, targets, power, neighbors):
@@ -74,46 +46,21 @@ def idw(tree, values, targets, power, neighbors):
     return estimate
 
 
-def load_station_metrics(points_path, station_year_path, min_coverage):
+def load_station_metrics(points_path, station_year_path, min_coverage, years=SPATIAL_YEARS):
     points = pd.read_csv(points_path)
-    yearly = pd.read_csv(station_year_path)
-    required_points = {'station_id', 'rainy_pct', 'latitude', 'longitude'}
-    required_yearly = {'station_id', 'year', 'calendar_coverage_pct',
-                       'mean_mm_per_observed_interval', 'rainy_intervals', 'observed_intervals'}
-    if required_points - set(points.columns) or required_yearly - set(yearly.columns):
-        raise ValueError('Input CSV columns do not match the EDA pipeline. '
-                         f'Missing station columns: {sorted(required_points - set(points.columns))}; '
-                         f'missing annual columns: {sorted(required_yearly - set(yearly.columns))}')
-    if points['station_id'].duplicated().any() or len(points) < 3:
-        raise ValueError('Spatial summary must contain at least 3 distinct stations')
-    yearly = yearly[yearly['year'].isin(YEARS) &
-                    yearly['station_id'].isin(points['station_id'])].copy()
-    if yearly.duplicated(['station_id', 'year']).any():
-        raise ValueError('Duplicate station-year records')
-    coverage = yearly.groupby('station_id')['year'].nunique()
-    complete = coverage[coverage == len(YEARS)].index
-    yearly = yearly[yearly['station_id'].isin(complete) &
-                    (yearly['calendar_coverage_pct'] >= min_coverage)].copy()
-    valid = yearly.groupby('station_id')['year'].nunique()
-    valid = valid[valid == len(YEARS)].index
-    points = points[points['station_id'].isin(valid)].copy()
-    yearly = yearly[yearly['station_id'].isin(valid)].copy()
-    if len(points) < 3:
-        raise ValueError('Too few stations satisfy the shared four-year coverage criterion')
-    yearly['annual_rainy_pct'] = 100 * yearly['rainy_intervals'] / yearly['observed_intervals']
-    metrics = yearly.groupby('station_id', as_index=False).agg(
-        rainy_pct_check=('annual_rainy_pct', 'mean'),
-        mean_mm_per_interval=('mean_mm_per_observed_interval', 'mean'),
-        eligible_years=('year', 'nunique'))
-    points = points.merge(metrics, on='station_id', validate='one_to_one')
-    max_diff = (points['rainy_pct'] - points['rainy_pct_check']).abs().max()
-    if max_diff > 1e-5:
-        raise ValueError(f'Occurrence summary differs from annual data (max difference {max_diff:.4g}); '
-                         'regenerate spatial_balanced_station_summary.csv with the current plotting pipeline')
-    for col in ('rainy_pct', 'mean_mm_per_interval', 'latitude', 'longitude'):
-        if not np.isfinite(points[col].to_numpy(dtype=float)).all():
-            raise ValueError(f'Non-finite values in {col}')
-    return points
+    expected, _ = spatial_summary(pd.read_csv(station_year_path), years, min_coverage)
+    if points['station_id'].duplicated().any() or len(expected) < 3:
+        raise ValueError('Spatial summary must contain at least 3 distinct eligible stations')
+    if set(points.station_id) != set(expected.station_id):
+        raise ValueError('Spatial station set differs; regenerate plots with matching years and coverage')
+    if 'analysis_years' not in points or set(points.analysis_years) != {','.join(map(str, years))}:
+        raise ValueError('Spatial analysis period differs; regenerate the EDA plots')
+    columns = ['rainy_pct', 'mean_mm_per_interval', 'latitude', 'longitude']
+    actual = points.set_index('station_id').sort_index()[columns].to_numpy(dtype=float)
+    reference = expected.set_index('station_id').sort_index()[columns].to_numpy(dtype=float)
+    if not np.isfinite(actual).all() or not np.allclose(actual, reference, atol=1e-8, rtol=0):
+        raise ValueError('Spatial summary differs from annual data; regenerate the EDA plots')
+    return expected
 
 
 def main():
@@ -121,8 +68,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--input', type=Path, default=root / 'outputs/figures/eda/spatial_balanced_station_summary.csv')
     parser.add_argument('--station-year', type=Path, default=root / 'outputs/eda/station_year_rainfall_stats.csv')
-    parser.add_argument('--boundary', type=Path, default=None)
-    parser.add_argument('--cache', type=Path, default=root / 'data/geography/singapore_adm0.geojson')
+    parser.add_argument('--boundary', type=Path, default=root / 'data/geography/singapore_adm0.geojson')
+    parser.add_argument('--spatial-years', type=int, nargs='+', default=SPATIAL_YEARS)
     parser.add_argument('--output', type=Path, default=root / 'outputs/figures/eda')
     parser.add_argument('--min-coverage', type=float, default=80.0)
     parser.add_argument('--resolution', type=int, default=420)
@@ -131,13 +78,16 @@ def main():
     parser.add_argument('--max-distance-km', type=float, default=12.0,
                         help='Mask cells farther than this from any station; 0 disables')
     args = parser.parse_args()
-    if args.power <= 0 or args.neighbors < 1 or args.resolution < 100 or args.max_distance_km < 0:
+    if (not np.isfinite([args.power, args.max_distance_km, args.min_coverage]).all() or
+            not 0 <= args.min_coverage <= 100 or args.power <= 0 or args.neighbors < 1 or
+            args.resolution < 100 or args.max_distance_km < 0):
         parser.error('power > 0, neighbors >= 1, resolution >= 100, max-distance-km >= 0 required')
     for path in (args.input, args.station_year):
         if not path.is_file():
             parser.error(f'Missing {path}')
-    points = load_station_metrics(args.input, args.station_year, args.min_coverage)
-    boundary_path = args.boundary or download_boundary(args.cache)
+    args.spatial_years = sorted(args.spatial_years)
+    points = load_station_metrics(args.input, args.station_year, args.min_coverage, args.spatial_years)
+    boundary_path = args.boundary
     if not boundary_path.is_file():
         parser.error(f'Boundary not found: {boundary_path}')
     border = gpd.read_file(boundary_path)
@@ -194,7 +144,10 @@ def main():
         ax.set_aspect('equal')
         ax.set_xlim(minx, maxx); ax.set_ylim(miny, maxy)
         ax.set_axis_off()  # removes Easting/Northing labels and unnecessary ticks
-    fig.suptitle('Spatial rainfall patterns across Singapore (2021–2024)', fontsize=15, weight='bold')
+    period = ', '.join(map(str, args.spatial_years))
+    fig.suptitle(f'Spatial rainfall patterns across Singapore ({period})\n'
+                 f'{len(points)} stations; ≥{args.min_coverage:g}% coverage in every year; '
+                 f'IDW power {args.power:g}, {args.neighbors} neighbors', fontsize=13, weight='bold')
     args.output.mkdir(parents=True, exist_ok=True)
     name = 'fig_4_5_singapore_rainfall_two_panel'
     for ext in ('png', 'pdf'):
@@ -202,10 +155,19 @@ def main():
         fig.savefig(path, dpi=260, bbox_inches='tight', facecolor='white')
         print('Saved:', path)
     plt.close(fig)
-    print(f'Included {len(points)} stations; common years {YEARS}; '
+    print(f'Included {len(points)} stations; common years {args.spatial_years}; '
           f'coverage >= {args.min_coverage:g}%; IDW p={args.power:g}, k={args.neighbors}.')
-    print('Note: map colours are interpolated estimates, not direct observations; '
-          'boundary from geoBoundaries gbOpen (CC BY 4.0).')
+    source_path = boundary_path.parent / 'singapore_boundary_source.json'
+    source = json.loads(source_path.read_text()) if source_path.is_file() else {}
+    manifest = {'spatial_years': args.spatial_years, 'min_coverage_pct': args.min_coverage,
+                'station_ids': points.station_id.tolist(), 'idw_power': args.power,
+                'idw_neighbors': min(args.neighbors, len(points)), 'resolution': args.resolution,
+                'max_distance_km': args.max_distance_km, 'crs': CRS,
+                'boundary_path': str(boundary_path.resolve()), 'boundary_metadata': source,
+                'boundary_sha256': hashlib.sha256(boundary_path.read_bytes()).hexdigest()}
+    (args.output / 'spatial_map_manifest.json').write_text(json.dumps(manifest, indent=2) + '\n', encoding='utf-8')
+    print('Note: map colours are interpolated estimates, not direct observations.')
+    print('Boundary license:', source.get('boundaryLicense', 'See boundary source license'))
 
 
 if __name__ == '__main__':

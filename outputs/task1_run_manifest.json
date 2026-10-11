@@ -1,0 +1,80 @@
+{
+  "started_utc": "2026-10-11T09:18:03.739823+00:00",
+  "mode": "saved_summaries",
+  "python": "3.11.14 (main, Oct  9 2025, 16:16:55) [Clang 17.0.0 (clang-1700.0.13.3)]",
+  "parameters": {
+    "summaries_only": true,
+    "spark_submit": "spark-submit",
+    "spark_options": "",
+    "spatial_years": [
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "min_spatial_coverage": 80.0,
+    "min_monthly_coverage": 90.0,
+    "coverage_thresholds": [
+      80.0,
+      90.0
+    ]
+  },
+  "completed_commands": [
+    [
+      "/Users/wenyoudi/Desktop/DSA5208 Scalable Distributed Computing/singapore-rainfall-analysis-and-prediction/.venv/bin/python",
+      "/Users/wenyoudi/Desktop/DSA5208 Scalable Distributed Computing/singapore-rainfall-analysis-and-prediction/src/plot_data_quality.py"
+    ],
+    [
+      "/Users/wenyoudi/Desktop/DSA5208 Scalable Distributed Computing/singapore-rainfall-analysis-and-prediction/.venv/bin/python",
+      "/Users/wenyoudi/Desktop/DSA5208 Scalable Distributed Computing/singapore-rainfall-analysis-and-prediction/src/plot_rainfall_eda.py",
+      "--spatial-years",
+      "2021",
+      "2022",
+      "2023",
+      "2024",
+      "--min-spatial-coverage",
+      "80.0",
+      "--min-monthly-coverage",
+      "90.0",
+      "--coverage-thresholds",
+      "80.0",
+      "90.0"
+    ],
+    [
+      "/Users/wenyoudi/Desktop/DSA5208 Scalable Distributed Computing/singapore-rainfall-analysis-and-prediction/.venv/bin/python",
+      "/Users/wenyoudi/Desktop/DSA5208 Scalable Distributed Computing/singapore-rainfall-analysis-and-prediction/src/plot_map.py",
+      "--spatial-years",
+      "2021",
+      "2022",
+      "2023",
+      "2024",
+      "--min-coverage",
+      "80.0"
+    ]
+  ],
+  "plot_packages": {
+    "pandas": "3.0.6",
+    "numpy": "2.4.6",
+    "matplotlib": "3.11.2",
+    "scipy": "1.17.1",
+    "geopandas": "1.2.0",
+    "shapely": "2.2.0",
+    "pyproj": "3.7.2"
+  },
+  "source_sha256": {
+    "cleaning_diagnostics.py": "d89d27423f84c49f0b8fa813fc48988c259b27e80ed2a197f5e0bbaee7fd70c9",
+    "cleaning_validation.py": "4b4c458fc67bdac24d616a05e54617b08a97c2966dbab312c413125e4a076711",
+    "data_cleaning.py": "4053119839801f109bb322fd63214b40c0d11ed9698c44cc440b4027ea9805f7",
+    "data_profiling.py": "5a6f84b184c9617933059b10d89de8331b49aa2135217084b95afcb7875544c4",
+    "gap_analysis.py": "2a7cb6db66b487729d21529ad6e733c23f8a1577dc2b3a54a28e205c7ebe85a6",
+    "plot_data_quality.py": "d29ba6dc90dde4925a8c72dd09746b42f3a9c6bd3743756b67e2e8ffe0eec02d",
+    "plot_eda.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "plot_map.py": "4976f6ff48c5cfbc93c9fcb4751ff7666e110d53987455472d5ce5179e6c7dca",
+    "plot_rainfall_eda.py": "4f6fef641b9b67a847a83781909dc6de0a17f9e389077e7a68bfb2af163cf30e",
+    "rainfall_eda.py": "77dee729004087e281ceaf793ac44f203a1674cfaca4727e26f6917d2fbfe324",
+    "run_task1.py": "1fbe89b5be99b706e19fcf3e3ca487c66f53ad64e9dcdac8e27d44ecea23d469",
+    "task1_analysis.py": "09bb44decfb3078227e16421dc541ce6db6089caf8ba5bd9da95777209ad91a5"
+  },
+  "status": "complete",
+  "finished_utc": "2026-10-11T09:18:09.731880+00:00"
+}

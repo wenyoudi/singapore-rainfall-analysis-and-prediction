@@ -6,6 +6,10 @@ Dependencies: pandas, numpy, matplotlib. All plots are saved as PNG and PDF.
 """
 from pathlib import Path
 import argparse
+import hashlib
+import json
+from task1_analysis import (YEARS, SPATIAL_YEARS, balanced_ids,
+                            coverage_sensitivity, spatial_summary)
 import numpy as np
 import pandas as pd
 import matplotlib
@@ -36,17 +40,79 @@ def weighted_rate(df, group, numerator='rainy_intervals'):
     return a
 
 
+def plot_sensitivity(annual, monthly, out):
+    fig, axes = plt.subplots(1, 2, figsize=(13, 5.7))
+    for (cohort, threshold, weighting), group in annual.groupby(
+            ['cohort', 'min_coverage_pct', 'weighting']):
+        if weighting == 'pooled' and cohort != 'all_reporting':
+            continue
+        if cohort == 'common_all_years':
+            continue  # Existing common-station figure already covers this cohort.
+        label = ('All stations, pooled' if weighting == 'pooled' else 'All stations, equal weights')
+        if cohort != 'all_reporting':
+            kind = 'Fixed all-year stations' if cohort == 'balanced_all_years' else 'Eligible each year'
+            label = f'{kind}, ≥{threshold:g}%, equal weights'
+        if group.stations.max() == 0:
+            print(f'WARNING: Empty sensitivity cohort: {label}; CSV contains undefined rates.')
+            continue
+        counts = f'n={group.stations.min()}–{group.stations.max()}'
+        for ax, column in zip(axes, ['rainy_pct', 'mean_mm_per_interval']):
+            ax.plot(group.year, group[column], marker='o', label=f'{label} ({counts})')
+    for ax in axes:
+        ax.set(xlabel='Year', xticks=YEARS)
+        ax.tick_params(axis='x', rotation=45)
+        ax.grid(axis='y', alpha=.2)
+    axes[0].set(ylabel='Rainy observed intervals (%)', title='A. Rainfall occurrence')
+    axes[1].set(ylabel='Mean rainfall per observed interval (mm)', title='B. Mean rainfall')
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc='lower center', ncol=2, fontsize=8)
+    fig.suptitle('Annual sensitivity to station weighting and full-calendar coverage')
+    fig.tight_layout(rect=(0, .18, 1, .94))
+    save(fig, out, 'fig_4_2_coverage_sensitivity')
+
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5.2))
+    for (threshold, weighting), group in monthly.groupby(['min_coverage_pct', 'weighting']):
+        if weighting == 'pooled' and threshold != 0:
+            continue
+        label = 'All station-months, pooled' if weighting == 'pooled' else (
+            'All station-months, equal weights' if threshold == 0 else f'Coverage ≥{threshold:g}%, equal weights')
+        for ax, column in zip(axes, ['rainy_pct', 'mean_mm_per_interval']):
+            ax.plot(group.month, group[column], marker='o', label=label)
+    for ax in axes:
+        ax.set(xlabel='Month')
+        ax.set_xticks(range(1, 13), MONTHS, rotation=45)
+        ax.grid(axis='y', alpha=.2)
+    axes[0].set(ylabel='Rainy observed intervals (%)', title='A. Rainfall occurrence')
+    axes[1].set(ylabel='Mean rainfall per observed interval (mm)', title='B. Mean rainfall')
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc='lower center', ncol=2, fontsize=8)
+    fig.suptitle('Seasonal sensitivity to station-month coverage and weighting')
+    fig.tight_layout(rect=(0, .13, 1, .94))
+    save(fig, out, 'fig_4_3_coverage_sensitivity')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--input-dir', type=Path, default=ROOT / 'outputs' / 'eda')
     parser.add_argument('--output-dir', type=Path, default=ROOT / 'outputs' / 'figures' / 'eda')
     parser.add_argument('--min-spatial-coverage', type=float, default=80.0,
                         help='Minimum calendar-year station coverage for spatial summary (percent)')
-    parser.add_argument('--min-spatial-years', type=int, default=4,
-                        help='Minimum number of eligible years per station for spatial map')
+    parser.add_argument('--spatial-years', type=int, nargs='+', default=SPATIAL_YEARS,
+                        help='Explicit common years for both spatial plots (default: 2021 2022 2023 2024)')
+    parser.add_argument('--coverage-thresholds', type=float, nargs='+', default=[80., 90.],
+                        help='Full-calendar thresholds for annual and monthly sensitivity checks')
     parser.add_argument('--min-monthly-coverage', type=float, default=90.0,
                         help='Minimum calendar-month coverage for accumulation comparison (percent)')
     args = parser.parse_args()
+    if (not 0 <= args.min_spatial_coverage <= 100 or
+            not 0 <= args.min_monthly_coverage <= 100 or
+            any(not 0 <= t <= 100 for t in args.coverage_thresholds)):
+        parser.error('Coverage thresholds must be in 0..100')
+    if (len(set(args.spatial_years)) != len(args.spatial_years) or
+            not set(args.spatial_years).issubset(YEARS)):
+        parser.error('Spatial years must be unique study years in 2017..2024')
+    args.spatial_years = sorted(args.spatial_years)
+    args.coverage_thresholds = sorted(set(args.coverage_thresholds))
     out = args.output_dir
     out.mkdir(parents=True, exist_ok=True)
     annual = load(args.input_dir, 'annual_rainfall_stats.csv').sort_values('year')
@@ -56,7 +122,33 @@ def main():
     percentiles = load(args.input_dir, 'positive_rainfall_percentiles.csv')
     station_year = load(args.input_dir, 'station_year_rainfall_stats.csv')
     station_month = load(args.input_dir, 'station_month_rainfall_stats.csv')
-    locations = load(args.input_dir, 'station_locations.csv')
+    annual_sensitivity, monthly_sensitivity, cohort_audit = coverage_sensitivity(
+        station_year, station_month, args.coverage_thresholds)
+    points, spatial_years = spatial_summary(station_year, args.spatial_years, args.min_spatial_coverage)
+    if len(points) < 3:
+        raise ValueError('Fewer than 3 spatial stations satisfy the requested period and coverage')
+    if not (station_month['calendar_coverage_pct'] >= args.min_monthly_coverage).any():
+        raise ValueError('No station-months meet the accumulation coverage threshold')
+    # Verify compact tables agree before figures combine summaries from different runs.
+    for frame, keys in [(annual, ['year']), (monthly, ['year', 'month']), (hourly, ['year', 'hour'])]:
+        if frame.duplicated(keys).any() or set(frame['year']) != set(YEARS):
+            raise ValueError('Duplicate periods or missing study years in %s' % keys)
+        by_year = frame.groupby('year')[['observed_intervals', 'rainy_intervals', 'recorded_rainfall_mm']].sum()
+        reference = station_year.groupby('year')[by_year.columns.tolist()].sum()
+        if not np.allclose(by_year.sort_index(), reference.sort_index(), atol=1e-5, rtol=1e-10):
+            raise ValueError('EDA tables disagree on annual totals; regenerate the Spark summaries')
+    # Station-month rows must reconcile at the station-year and network-month levels.
+    for keys, reference in [(['year', 'station_id'], station_year), (['year', 'month'], monthly)]:
+        cols = ['observed_intervals', 'rainy_intervals', 'recorded_rainfall_mm']
+        actual = station_month.groupby(keys)[cols].sum().sort_index()
+        expected = reference.set_index(keys)[cols].sort_index()
+        if not actual.index.equals(expected.index) or not np.allclose(actual, expected, atol=1e-5, rtol=1e-10):
+            raise ValueError('Station-month and other EDA summaries disagree; regenerate Spark summaries')
+    annual_sensitivity.to_csv(out / 'annual_coverage_sensitivity.csv', index=False)
+    monthly_sensitivity.to_csv(out / 'monthly_coverage_sensitivity.csv', index=False)
+    cohort_audit.to_csv(out / 'annual_cohort_membership.csv', index=False)
+    points.to_csv(out / 'spatial_balanced_station_summary.csv', index=False)
+    spatial_years.to_csv(out / 'spatial_selected_station_years.csv', index=False)
 
     plt.rcParams.update({'font.size': 10, 'axes.spines.top': False,
                          'axes.spines.right': False, 'figure.dpi': 120})
@@ -110,9 +202,7 @@ def main():
 
     # 4.2: Sensitivity analysis holding station identity constant across all eight years.
     # Rates remain conditional on observed intervals; missingness can still bias estimates.
-    n_years = station_year['year'].nunique()
-    station_counts = station_year.groupby('station_id')['year'].nunique()
-    common_ids = station_counts[station_counts == n_years].index
+    common_ids = balanced_ids(station_year)
     common = station_year[station_year['station_id'].isin(common_ids)].copy()
     if not common.empty:
         comp = common.groupby('year', as_index=False)[
@@ -219,57 +309,29 @@ def main():
     fig.tight_layout()
     save(fig, out, 'fig_4_4_diurnal_patterns')
 
-    # 4.5: Compare station-level annual occurrence on a common eligible-year set.
-    # A year must be represented at every plotted station, so differences in years
-    # contributing to the map cannot explain spatial variation.
-    eligible = station_year.loc[
-        station_year['calendar_coverage_pct'] >= args.min_spatial_coverage].copy()
-    year_counts = eligible.groupby('station_id')['year'].nunique()
-    keep = year_counts[year_counts >= args.min_spatial_years].index
-    eligible = eligible[eligible['station_id'].isin(keep)].copy()
-    if eligible.empty:
-        print('WARNING: No stations meet spatial criteria; skipping spatial map.')
-    else:
-        # Select the longest common period retaining at least 40 stations.
-        # If no multi-year period qualifies, use the best available pair.
-        from itertools import combinations
-        candidate_years = sorted(int(y) for y in eligible['year'].unique())
-        year_sets = {y: set(eligible.loc[eligible['year'] == y, 'station_id'])
-                     for y in candidate_years}
-        options = []
-        for k in range(2, len(candidate_years) + 1):
-            for years in combinations(candidate_years, k):
-                ids = set.intersection(*(year_sets[y] for y in years))
-                if ids:
-                    options.append((years, ids))
-        feasible = [(years, ids) for years, ids in options if len(ids) >= 40]
-        pool = feasible if feasible else options
-        if not pool:
-            raise ValueError('No stations have two eligible years for spatial comparison')
-        best_years, common_ids = max(pool, key=lambda item: (len(item[0]), len(item[1]))) \
-            if feasible else max(pool, key=lambda item: (len(item[1]), len(item[0])))
-        best_stations = sorted(common_ids)
-        balanced = eligible.loc[eligible['year'].isin(best_years) &
-                                eligible['station_id'].isin(best_stations)].copy()
-        balanced['annual_rainy_pct'] = 100 * balanced['rainy_intervals'] / balanced['observed_intervals']
-        by_station = balanced.groupby('station_id', as_index=False).agg(
-            rainy_pct=('annual_rainy_pct', 'mean'),
-            eligible_years=('year', 'nunique'))
-        coords = (locations.sort_values('year').drop_duplicates('station_id', keep='last')
-                  [['station_id', 'latitude', 'longitude']])
-        points = by_station.merge(coords, on='station_id', how='inner')
-        points.to_csv(out / 'spatial_balanced_station_summary.csv', index=False)
-        fig, ax = plt.subplots(figsize=(9, 6))
-        scatter = ax.scatter(points['longitude'], points['latitude'], c=points['rainy_pct'],
-                             s=55, cmap='viridis', edgecolors='white', linewidths=.4)
-        fig.colorbar(scatter, ax=ax, label='Mean annual rainy intervals (%)')
-        ax.set(xlabel='Longitude (°E)', ylabel='Latitude (°N)',
-               title=f'Station rainfall occurrence: common eligible years {sorted(best_years)}')
-        ax.text(.01, .01,
-                f'{len(points)} stations; ≥{args.min_spatial_coverage:g}% annual coverage; no basemap',
-                transform=ax.transAxes, fontsize=8, va='bottom')
-        save(fig, out, 'fig_4_5_station_spatial_occurrence')
-        print(f'Spatial balanced comparison: {len(points)} stations, years {sorted(best_years)}')
+    # 4.5: Explicit, shared period. Coordinates come only from those years.
+    fig, ax = plt.subplots(figsize=(9, 6))
+    scatter = ax.scatter(points['longitude'], points['latitude'], c=points['rainy_pct'],
+                         s=55, cmap='viridis', edgecolors='white', linewidths=.4)
+    fig.colorbar(scatter, ax=ax, label='Mean annual rainy intervals (%)')
+    ax.set(xlabel='Longitude (°E)', ylabel='Latitude (°N)',
+           title=f'Station rainfall occurrence: common years {args.spatial_years}')
+    ax.text(.01, .01, f'{len(points)} stations; ≥{args.min_spatial_coverage:g}% annual coverage',
+            transform=ax.transAxes, fontsize=8, va='bottom')
+    save(fig, out, 'fig_4_5_station_spatial_occurrence')
+    plot_sensitivity(annual_sensitivity, monthly_sensitivity, out)
+    manifest = {
+        'study_years': list(YEARS), 'timezone': 'Asia/Singapore',
+        'coverage_thresholds_pct': args.coverage_thresholds,
+        'monthly_accumulation_min_coverage_pct': args.min_monthly_coverage,
+        'spatial_years': args.spatial_years, 'spatial_min_coverage_pct': args.min_spatial_coverage,
+        'spatial_station_count': len(points), 'spatial_station_ids': points.station_id.tolist(),
+        'spatial_weighting': 'Equal annual rates per station; median coordinates within selected years',
+        'missingness': 'No imputation. Sensitivity checks do not establish random missingness.',
+        'input_sha256': {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
+                         for p in sorted(args.input_dir.glob('*.csv'))},
+    }
+    (out / 'task1_analysis_manifest.json').write_text(json.dumps(manifest, indent=2) + '\n', encoding='utf-8')
 
     # Diagnostics: count eligible station-years and months, useful for interpreting plots.
     counts = (station_year.assign(eligible=station_year['calendar_coverage_pct'] >= args.min_spatial_coverage)
