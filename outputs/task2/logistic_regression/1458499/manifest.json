@@ -1,0 +1,425 @@
+{
+  "status": "complete",
+  "started_utc": "2026-10-14T13:15:56.661877+00:00",
+  "parameters": {
+    "input_root": "/scratch/e0969984/singapore-rainfall-analysis-and-prediction/data/processed",
+    "output": "/scratch/e1496655/task2/final-1458499.stdct-mgmt-02",
+    "reg_params": [
+      0.0,
+      0.01,
+      0.1
+    ],
+    "max_iter": 80
+  },
+  "thresholds_mm": [
+    0.0,
+    1.0,
+    5.0,
+    10.0
+  ],
+  "python": "3.10.4",
+  "spark": "3.3.1",
+  "java": "11.0.18",
+  "pbs_job_id": "1458499.stdct-mgmt-02",
+  "spark_conf": {
+    "spark.driver.memory": "24g",
+    "spark.driver.extraJavaOptions": "-XX:+IgnoreUnrecognizedVMOptions --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/sun.nio.cs=ALL-UNNAMED --add-opens=java.base/sun.security.action=ALL-UNNAMED --add-opens=java.base/sun.util.calendar=ALL-UNNAMED --add-opens=java.security.jgss/sun.security.krb5=ALL-UNNAMED",
+    "spark.master": "local[8]",
+    "spark.app.submitTime": "1791983752704",
+    "spark.driver.host": "localhost.localdomain",
+    "spark.executor.id": "driver",
+    "spark.sql.shuffle.partitions": "32",
+    "spark.app.startTime": "1791983754804",
+    "spark.app.name": "Task2FinalLogisticRegression",
+    "spark.sql.session.timeZone": "Asia/Singapore",
+    "spark.rdd.compress": "True",
+    "spark.executor.extraJavaOptions": "-XX:+IgnoreUnrecognizedVMOptions --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/sun.nio.cs=ALL-UNNAMED --add-opens=java.base/sun.security.action=ALL-UNNAMED --add-opens=java.base/sun.util.calendar=ALL-UNNAMED --add-opens=java.security.jgss/sun.security.krb5=ALL-UNNAMED",
+    "spark.serializer.objectStreamReset": "100",
+    "spark.app.id": "local-1791983756138",
+    "spark.submit.pyFiles": "",
+    "spark.submit.deployMode": "client",
+    "spark.driver.port": "46365"
+  },
+  "selection": "minimum equal-threshold mean validation Brier score; ties keep first",
+  "auc_num_bins": 1000,
+  "coefficient_upper_bound": 1000000.0,
+  "source_sha256": {
+    "task2_train.py": "36a927838d5355a207f48b6dc5d68681744f8cbe2ba22fe4d41f26f28bdaa58c",
+    "task2_prepare.py": "f5936d95318cf30f20a0263867b80ea4fe59cc93d33436373d9faab80bbfa2be"
+  },
+  "input_counts": [
+    {
+      "year": 2017,
+      "count": 5256020
+    },
+    {
+      "year": 2018,
+      "count": 4594246
+    },
+    {
+      "year": 2019,
+      "count": 5026862
+    },
+    {
+      "year": 2020,
+      "count": 6334473
+    },
+    {
+      "year": 2021,
+      "count": 7044646
+    },
+    {
+      "year": 2022,
+      "count": 7133230
+    },
+    {
+      "year": 2023,
+      "count": 6742890
+    },
+    {
+      "year": 2024,
+      "count": 6406260
+    }
+  ],
+  "retained_counts": [
+    {
+      "split": "train",
+      "year": 2017,
+      "count": 4803912
+    },
+    {
+      "split": "train",
+      "year": 2018,
+      "count": 3973669
+    },
+    {
+      "split": "train",
+      "year": 2019,
+      "count": 4931059
+    },
+    {
+      "split": "train",
+      "year": 2020,
+      "count": 6229257
+    },
+    {
+      "split": "train",
+      "year": 2021,
+      "count": 6973560
+    },
+    {
+      "split": "train",
+      "year": 2022,
+      "count": 7069791
+    },
+    {
+      "split": "validation",
+      "year": 2023,
+      "count": 6683962
+    },
+    {
+      "split": "test",
+      "year": 2024,
+      "count": 6335645
+    }
+  ],
+  "training_rates": [
+    {
+      "threshold_mm": 1.0,
+      "n": 33981248,
+      "probability": 0.023327189160327486
+    },
+    {
+      "threshold_mm": 10.0,
+      "n": 33981248,
+      "probability": 0.0038996213441013115
+    },
+    {
+      "threshold_mm": 5.0,
+      "n": 33981248,
+      "probability": 0.008144227074885537
+    },
+    {
+      "threshold_mm": 0.0,
+      "n": 33981248,
+      "probability": 0.06005883009358573
+    }
+  ],
+  "constant_feature_indices": [
+    88,
+    113,
+    126
+  ],
+  "validation_candidates": [
+    {
+      "reg_param": 0.0,
+      "macro_brier": 0.02145952918647194,
+      "metrics": [
+        {
+          "threshold_mm": 0.0,
+          "n": 6683962,
+          "positives": 445835.0,
+          "prevalence": 0.06670220447094104,
+          "mean_probability": 0.050991500041951666,
+          "brier": 0.05263772726988508,
+          "log_loss": 0.20225860652455266
+        },
+        {
+          "threshold_mm": 1.0,
+          "n": 6683962,
+          "positives": 175725.0,
+          "prevalence": 0.02629054444055786,
+          "mean_probability": 0.03486122239892217,
+          "brier": 0.020748889711113872,
+          "log_loss": 0.0940917745251327
+        },
+        {
+          "threshold_mm": 5.0,
+          "n": 6683962,
+          "positives": 58399.0,
+          "prevalence": 0.008737183125816693,
+          "mean_probability": 0.00887948860667435,
+          "brier": 0.008078716042726412,
+          "log_loss": 0.04120831417914592
+        },
+        {
+          "threshold_mm": 10.0,
+          "n": 6683962,
+          "positives": 27558.0,
+          "prevalence": 0.004123003691523082,
+          "mean_probability": 0.0027461541497694835,
+          "brier": 0.004372783722162411,
+          "log_loss": 0.02626294627196815
+        }
+      ],
+      "iterations": 21,
+      "iteration_limit_reached": false
+    },
+    {
+      "reg_param": 0.01,
+      "macro_brier": 0.022361073726878594,
+      "metrics": [
+        {
+          "threshold_mm": 0.0,
+          "n": 6683962,
+          "positives": 445835.0,
+          "prevalence": 0.06670220447094104,
+          "mean_probability": 0.037483505358624006,
+          "brier": 0.05556321181662534,
+          "log_loss": 0.21543839123337513
+        },
+        {
+          "threshold_mm": 1.0,
+          "n": 6683962,
+          "positives": 175725.0,
+          "prevalence": 0.02629054444055786,
+          "mean_probability": 0.03234415954948538,
+          "brier": 0.021187674256564804,
+          "log_loss": 0.09568933055671139
+        },
+        {
+          "threshold_mm": 5.0,
+          "n": 6683962,
+          "positives": 58399.0,
+          "prevalence": 0.008737183125816693,
+          "mean_probability": 0.018142204451348964,
+          "brier": 0.008057686328338769,
+          "log_loss": 0.04375183124959103
+        },
+        {
+          "threshold_mm": 10.0,
+          "n": 6683962,
+          "positives": 27558.0,
+          "prevalence": 0.004123003691523082,
+          "mean_probability": 0.009188843542218274,
+          "brier": 0.004635722505985465,
+          "log_loss": 0.025557819980231142
+        }
+      ],
+      "iterations": 11,
+      "iteration_limit_reached": false
+    },
+    {
+      "reg_param": 0.1,
+      "macro_brier": 0.023514328146739035,
+      "metrics": [
+        {
+          "threshold_mm": 0.0,
+          "n": 6683962,
+          "positives": 445835.0,
+          "prevalence": 0.06670220447094104,
+          "mean_probability": 0.027347477058227886,
+          "brier": 0.05921847422056538,
+          "log_loss": 0.23764348326177195
+        },
+        {
+          "threshold_mm": 1.0,
+          "n": 6683962,
+          "positives": 175725.0,
+          "prevalence": 0.02629054444055786,
+          "mean_probability": 0.02644131462588172,
+          "brier": 0.0223964333347534,
+          "log_loss": 0.10084510659292055
+        },
+        {
+          "threshold_mm": 5.0,
+          "n": 6683962,
+          "positives": 58399.0,
+          "prevalence": 0.008737183125816693,
+          "mean_probability": 0.023109485689206434,
+          "brier": 0.007940454472502691,
+          "log_loss": 0.04742380454369948
+        },
+        {
+          "threshold_mm": 10.0,
+          "n": 6683962,
+          "positives": 27558.0,
+          "prevalence": 0.004123003691523082,
+          "mean_probability": 0.01953542285565558,
+          "brier": 0.004501950559134676,
+          "log_loss": 0.03238644298575522
+        }
+      ],
+      "iterations": 11,
+      "iteration_limit_reached": false
+    }
+  ],
+  "selected_reg_param": 0.0,
+  "validation_macro_brier": 0.02145952918647194,
+  "coefficients": [
+    -0.0011362632252768083,
+    -0.062122172684779514,
+    0.025151180922655714,
+    -0.046588537442308196,
+    0.061985880219300064,
+    -0.10498362124005037,
+    0.0415989073844259,
+    0.05125206520968987,
+    0.009145817397897911,
+    0.06816323753581298,
+    0.002525593136876725,
+    -0.017069565433643127,
+    -0.07327393285907402,
+    0.020869522278442246,
+    0.02418934016574887,
+    -0.07519743775202307,
+    -0.1685961697014276,
+    0.04685443538746541,
+    -0.0061590321510259505,
+    -0.002162963931354082,
+    -0.05080303126733072,
+    0.04219319837438408,
+    0.08681867810223377,
+    0.056188636092559245,
+    0.021103554609705633,
+    0.054454414376424114,
+    0.06237862124594758,
+    -0.03070476100158762,
+    0.0028940500703710115,
+    -0.00902076229690256,
+    0.02450397508148465,
+    -0.027818921970421566,
+    -0.16731170656677033,
+    0.0440616796749739,
+    0.012515632291928782,
+    -0.012255846581843003,
+    -0.14509961057386334,
+    -0.06112696636180322,
+    -0.025579401430875406,
+    -0.0646944654931756,
+    0.06978810475655807,
+    -0.09605869115973342,
+    -0.048104967649062906,
+    0.04270517377946809,
+    -0.013386064247896089,
+    -0.06944197818191562,
+    -0.22933325924478196,
+    0.013892532277526466,
+    -0.018680257804646144,
+    -0.09770761922155266,
+    0.005986446957170912,
+    0.16744597726683705,
+    0.11956617748769574,
+    0.07020226649968714,
+    -0.15247763000785797,
+    0.07585097577515433,
+    0.09749264684905515,
+    0.10222911232247442,
+    0.11878898425115411,
+    0.1053489460207865,
+    -0.004978360048327968,
+    0.14434419021950814,
+    0.1252734895365427,
+    0.0716076130499629,
+    0.09450229351202406,
+    -0.007127655591252929,
+    0.1402737914392787,
+    0.034193090654620874,
+    0.08938138427595663,
+    0.11011696662184647,
+    -0.004019414676268194,
+    0.10524086093015139,
+    0.09374769269715348,
+    0.019770218563382878,
+    0.14089859878582514,
+    0.14164255803967993,
+    0.16184526462798823,
+    0.06131675005541782,
+    -0.25176426184219813,
+    0.018410164226571622,
+    0.08378427230464654,
+    -0.11285933392022642,
+    -0.27597587500563997,
+    0.044526209307178384,
+    -0.10308319807753204,
+    -5.493532587410897,
+    0.24810134961341143,
+    0.28807168834688685,
+    0.0,
+    0.1580844409244988,
+    -0.7377343524493262,
+    0.705950324193617,
+    -0.3043151600409589,
+    -0.691236661548853,
+    0.6804397586654654,
+    0.40185979832988183,
+    0.07745797831787213,
+    0.2324331815689319,
+    -0.13294534570246255,
+    0.24189499015761207,
+    -0.610444125978777,
+    0.45231617037494565,
+    0.6270377505043819,
+    -0.5859928410292676,
+    -0.6649752637272347,
+    0.04835435790572128,
+    -0.2412631530799371,
+    0.17042328062836373,
+    0.19723826794146573,
+    0.34863108767589124,
+    -0.05034834979605913,
+    0.16692423994608363,
+    -0.5058246258177319,
+    0.0,
+    0.09440516634824606,
+    0.2269052744963378,
+    0.010587491280757396,
+    -0.32498067667658576,
+    0.3392628564014767,
+    0.11767588421916564,
+    0.19592300273196345,
+    -0.06963686341591606,
+    -0.06612839525184899,
+    -0.310686471516009,
+    0.029374729031985465,
+    -0.3427296496964555,
+    0.0,
+    1.6448684496571218,
+    -0.005122123802260563,
+    0.12952467887038838,
+    -0.46226763706725094
+  ],
+  "intercept": -3.251680945519113,
+  "selected_iterations": 21,
+  "finished_utc": "2026-10-14T13:23:07.758408+00:00"
+}

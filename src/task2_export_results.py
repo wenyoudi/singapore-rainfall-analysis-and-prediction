@@ -70,7 +70,7 @@ def export_results(run_dir, output_dir=None):
         lines.append('- Missing optional artifacts: ' + ', '.join(missing))
     output_dir.mkdir(parents=True, exist_ok=True)
     summary = output_dir / 'task2_summary.md'
-    summary.write_text('\n'.join(lines) + '\n', encoding='utf-8')
+    summary.write_text('\n'.join(lines).rstrip() + '\n', encoding='utf-8')
     archive = output_dir / 'task2_results.zip'
     with zipfile.ZipFile(archive, 'w', compression=zipfile.ZIP_DEFLATED) as bundle:
         bundle.write(summary, summary.name)

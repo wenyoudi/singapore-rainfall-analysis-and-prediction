@@ -88,7 +88,9 @@ the test set. A runtime error or exhausted walltime may still require a correcte
 run; submitting full data does not guarantee success or good predictive accuracy.
 
 The existing 24 preparation tests passed on Vanda (job 1455698, 42.79 seconds).
-The new training tests and full-data model have not yet been executed there.
+The final 28-test suite passed on Vanda in job 1458499 (65.81 seconds).
+That job completed full-data training and evaluation with scheduler exit status 0.
+The selected regParam was 0, with 21 iterations; the manifest records status complete.
 Keep internal `task2_requirements_review.md` out of team uploads and commits.
 
 ## Spark 3.3.1 constant-column bound fix
@@ -105,7 +107,8 @@ bounds for constant columns and a zero upper bound for the threshold. The
 initial infinite nonconstant bounds were subsequently replaced as described below. Constant-column indices are recorded in
 the manifest. The regression test explicitly checks the zero-column case and
 still exercises fitting, monotonicity, serialization, and unseen-station scoring.
-The corrected tests require a Vanda run; syntax checks alone do not verify fitting.
+Subsequent job 1458499 passed the corrected tests and full-data run; see the
+model reload fix below for the second compatibility issue.
 
 Source: Apache Spark v3.3.1 LogisticRegression.scala, createBounds:
 https://github.com/apache/spark/blob/v3.3.1/mllib/src/main/scala/org/apache/spark/ml/classification/LogisticRegression.scala#L735-L771
@@ -124,8 +127,8 @@ The runner stops if any non-threshold coefficient reaches 99% of the cap, and re
 the cap in the manifest. Saved metadata is tested for Infinity, followed by actual
 model reload and prediction equality checks. No changes were made to the dataset,
 threshold grid, splits, metric definitions or threshold monotonicity requirement.
-This correction has passed local syntax checks; Spark runtime verification remains
-pending on Vanda.
+This correction passed the 28-test suite and full-data run on Vanda in job
+1458499. Both saved-model reload and prediction equality checks passed.
 
 ## Compact downloadable results
 

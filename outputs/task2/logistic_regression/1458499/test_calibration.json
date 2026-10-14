@@ -1,0 +1,282 @@
+[
+  {
+    "threshold_mm": 0.0,
+    "bin": 0,
+    "n": 6134584,
+    "predicted_probability": 0.04176744738841919,
+    "observed_frequency": 0.04363637371336019
+  },
+  {
+    "threshold_mm": 0.0,
+    "bin": 1,
+    "n": 111118,
+    "predicted_probability": 0.12848244998786187,
+    "observed_frequency": 0.5433593117226732
+  },
+  {
+    "threshold_mm": 0.0,
+    "bin": 2,
+    "n": 21950,
+    "predicted_probability": 0.24309453817858828,
+    "observed_frequency": 0.7293394077448747
+  },
+  {
+    "threshold_mm": 0.0,
+    "bin": 3,
+    "n": 11843,
+    "predicted_probability": 0.34655644278691583,
+    "observed_frequency": 0.7651777421261504
+  },
+  {
+    "threshold_mm": 0.0,
+    "bin": 4,
+    "n": 8258,
+    "predicted_probability": 0.4478182337646431,
+    "observed_frequency": 0.7905061758294987
+  },
+  {
+    "threshold_mm": 0.0,
+    "bin": 5,
+    "n": 6517,
+    "predicted_probability": 0.5480099513912682,
+    "observed_frequency": 0.8258401104802824
+  },
+  {
+    "threshold_mm": 0.0,
+    "bin": 6,
+    "n": 5718,
+    "predicted_probability": 0.6494737790668229,
+    "observed_frequency": 0.8523959426372858
+  },
+  {
+    "threshold_mm": 0.0,
+    "bin": 7,
+    "n": 5665,
+    "predicted_probability": 0.7506210780453335,
+    "observed_frequency": 0.8670785525154457
+  },
+  {
+    "threshold_mm": 0.0,
+    "bin": 8,
+    "n": 6447,
+    "predicted_probability": 0.8520598736679708,
+    "observed_frequency": 0.8859934853420195
+  },
+  {
+    "threshold_mm": 0.0,
+    "bin": 9,
+    "n": 23545,
+    "predicted_probability": 0.9769532088714663,
+    "observed_frequency": 0.9535357825440646
+  },
+  {
+    "threshold_mm": 1.0,
+    "bin": 0,
+    "n": 6221303,
+    "predicted_probability": 0.027503998345427674,
+    "observed_frequency": 0.016258330449425144
+  },
+  {
+    "threshold_mm": 1.0,
+    "bin": 1,
+    "n": 43845,
+    "predicted_probability": 0.13687871809262303,
+    "observed_frequency": 0.4050860987569848
+  },
+  {
+    "threshold_mm": 1.0,
+    "bin": 2,
+    "n": 14800,
+    "predicted_probability": 0.24460907574127347,
+    "observed_frequency": 0.47054054054054056
+  },
+  {
+    "threshold_mm": 1.0,
+    "bin": 3,
+    "n": 8868,
+    "predicted_probability": 0.3470872158641922,
+    "observed_frequency": 0.4978574650428507
+  },
+  {
+    "threshold_mm": 1.0,
+    "bin": 4,
+    "n": 6253,
+    "predicted_probability": 0.4478172832652364,
+    "observed_frequency": 0.5392611546457701
+  },
+  {
+    "threshold_mm": 1.0,
+    "bin": 5,
+    "n": 5166,
+    "predicted_probability": 0.5488982598063111,
+    "observed_frequency": 0.5747193186217576
+  },
+  {
+    "threshold_mm": 1.0,
+    "bin": 6,
+    "n": 4693,
+    "predicted_probability": 0.6500692790432301,
+    "observed_frequency": 0.6115491157042403
+  },
+  {
+    "threshold_mm": 1.0,
+    "bin": 7,
+    "n": 4649,
+    "predicted_probability": 0.7503694737035662,
+    "observed_frequency": 0.6203484620348462
+  },
+  {
+    "threshold_mm": 1.0,
+    "bin": 8,
+    "n": 5461,
+    "predicted_probability": 0.852495768541309,
+    "observed_frequency": 0.6614173228346457
+  },
+  {
+    "threshold_mm": 1.0,
+    "bin": 9,
+    "n": 20607,
+    "predicted_probability": 0.9772729783047521,
+    "observed_frequency": 0.8183141650895327
+  },
+  {
+    "threshold_mm": 5.0,
+    "bin": 0,
+    "n": 6289796,
+    "predicted_probability": 0.0048198746583918645,
+    "observed_frequency": 0.0059207007667657265
+  },
+  {
+    "threshold_mm": 5.0,
+    "bin": 1,
+    "n": 11085,
+    "predicted_probability": 0.14212192594227127,
+    "observed_frequency": 0.20072169598556608
+  },
+  {
+    "threshold_mm": 5.0,
+    "bin": 2,
+    "n": 5487,
+    "predicted_probability": 0.24603301311727205,
+    "observed_frequency": 0.24038636777838526
+  },
+  {
+    "threshold_mm": 5.0,
+    "bin": 3,
+    "n": 3660,
+    "predicted_probability": 0.34750660007849915,
+    "observed_frequency": 0.2592896174863388
+  },
+  {
+    "threshold_mm": 5.0,
+    "bin": 4,
+    "n": 2824,
+    "predicted_probability": 0.4486896121678529,
+    "observed_frequency": 0.27089235127478756
+  },
+  {
+    "threshold_mm": 5.0,
+    "bin": 5,
+    "n": 2498,
+    "predicted_probability": 0.5481062122202279,
+    "observed_frequency": 0.3166533226581265
+  },
+  {
+    "threshold_mm": 5.0,
+    "bin": 6,
+    "n": 2363,
+    "predicted_probability": 0.6500750388777233,
+    "observed_frequency": 0.3267033432077867
+  },
+  {
+    "threshold_mm": 5.0,
+    "bin": 7,
+    "n": 2453,
+    "predicted_probability": 0.7508679000650509,
+    "observed_frequency": 0.3465144720750102
+  },
+  {
+    "threshold_mm": 5.0,
+    "bin": 8,
+    "n": 3152,
+    "predicted_probability": 0.8519090610703273,
+    "observed_frequency": 0.38864213197969544
+  },
+  {
+    "threshold_mm": 5.0,
+    "bin": 9,
+    "n": 12327,
+    "predicted_probability": 0.9775042529008807,
+    "observed_frequency": 0.5642897704226495
+  },
+  {
+    "threshold_mm": 10.0,
+    "bin": 0,
+    "n": 6313627,
+    "predicted_probability": 0.000610460875936855,
+    "observed_frequency": 0.0029312786453808562
+  },
+  {
+    "threshold_mm": 10.0,
+    "bin": 1,
+    "n": 4476,
+    "predicted_probability": 0.1433379836601637,
+    "observed_frequency": 0.15638963360142985
+  },
+  {
+    "threshold_mm": 10.0,
+    "bin": 2,
+    "n": 2413,
+    "predicted_probability": 0.2471751524661863,
+    "observed_frequency": 0.1670120182345628
+  },
+  {
+    "threshold_mm": 10.0,
+    "bin": 3,
+    "n": 1794,
+    "predicted_probability": 0.34726459263877435,
+    "observed_frequency": 0.1939799331103679
+  },
+  {
+    "threshold_mm": 10.0,
+    "bin": 4,
+    "n": 1370,
+    "predicted_probability": 0.4484506592386868,
+    "observed_frequency": 0.20875912408759123
+  },
+  {
+    "threshold_mm": 10.0,
+    "bin": 5,
+    "n": 1288,
+    "predicted_probability": 0.5490154355760508,
+    "observed_frequency": 0.21583850931677018
+  },
+  {
+    "threshold_mm": 10.0,
+    "bin": 6,
+    "n": 1188,
+    "predicted_probability": 0.6514668037827693,
+    "observed_frequency": 0.2222222222222222
+  },
+  {
+    "threshold_mm": 10.0,
+    "bin": 7,
+    "n": 1331,
+    "predicted_probability": 0.7512207906255847,
+    "observed_frequency": 0.24567993989481593
+  },
+  {
+    "threshold_mm": 10.0,
+    "bin": 8,
+    "n": 1631,
+    "predicted_probability": 0.852501034601094,
+    "observed_frequency": 0.2838749233599019
+  },
+  {
+    "threshold_mm": 10.0,
+    "bin": 9,
+    "n": 6527,
+    "predicted_probability": 0.9777900166901154,
+    "observed_frequency": 0.40998927531791024
+  }
+]
