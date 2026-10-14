@@ -1,0 +1,11 @@
+data/
+outputs/
+models/
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+spark-warehouse/
+*.crc
+*.o[0-9]*
+*.e[0-9]*
