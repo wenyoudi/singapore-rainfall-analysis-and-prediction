@@ -1,7 +1,0 @@
-# Keep Linux batch jobs runnable after a Windows Git checkout and upload.
-*.pbs text eol=lf
-*.py text eol=lf
-# Python's CSV writer uses CRLF record terminators; these are not trailing spaces.
-*.csv whitespace=cr-at-eol
-# Preserve captured module listings and console output exactly as downloaded.
-outputs/environment/*.txt -whitespace

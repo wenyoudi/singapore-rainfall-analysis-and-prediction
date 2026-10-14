@@ -1,2 +1,0 @@
-# Original HPC target; use its compatible Python/Java environment.
-pyspark==3.3.1

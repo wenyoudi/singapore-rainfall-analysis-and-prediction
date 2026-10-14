@@ -1,8 +1,0 @@
-# Tested plotting environment: Python 3.11. Spark can use a separate environment.
-pandas==3.0.6
-numpy==2.4.6
-matplotlib==3.11.2
-scipy==1.17.1
-geopandas==1.2.0
-shapely==2.2.0
-pyproj==3.7.2
