@@ -454,3 +454,9 @@ The Vanda summary CSVs were downloaded and checked locally, and all 17 figure pa
 ## Branch workflow
 
 Task 1 development belongs on `eda`. After validation, commit the changes there and merge `eda` into `main`; then merge `main` into `models` before starting Task 2. The existing branch is named `models` (plural). Do not rewrite shared history to relocate uncommitted work: when branches share the same commit, switching to `eda` preserves the working files. Local merges and publishing branches to the remote are separate operations.
+
+## Task 2: Random Forest
+
+The Random Forest workflow reads the shared prepared dataset without rebuilding
+it and saves new artifacts under your Vanda account. Start with its PBS validation
+mode before training. See [the complete workflow](docs/task2_random_forest.md).

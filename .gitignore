@@ -19,3 +19,6 @@ spark-warehouse/
 # HPC logs
 *.o[0-9]*
 *.e[0-9]*
+
+# Random Forest run artifacts (models and per-run summaries)
+outputs/random_forest/
