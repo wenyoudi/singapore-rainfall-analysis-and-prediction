@@ -463,6 +463,5 @@ mode before training. See [the complete workflow](docs/task2_random_forest.md).
 
 The completed RF run `1459817` is archived with its model under
 [outputs/task2/random_forest/1459817](outputs/task2/random_forest/1459817/README.md).
-[RF versus LR results and calibration plots](outputs/task2/comparison/README.md)
-use frozen test outputs; GBT is pending. Regenerate them without training using
-`python src/task2_compare_results.py` in the plotting environment.
+This branch contains the Random Forest implementation and its individual results.
+Model comparisons will be added after all models are ready.

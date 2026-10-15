@@ -1,29 +1,37 @@
-# Completed Random Forest run 1459817
+# Random Forest results — job 1459817
 
-- Vanda job: `1459817.stdct-mgmt-02`; scheduler Exit_status=0 as supplied in the terminal transcript.
-- Manifest status: complete; 15 October 2026, 15:58:05 to 16:53:34 Asia/Singapore (about 55m29s).
-- Runtime: Spark 3.3.1, Python 3.10.4, Java 11.0.18, local[8], 24 GB driver heap.
-- Shared prepared dataset: `/scratch/e1496655/task2/final-1458499.stdct-mgmt-02/prepared`.
-- Train 2017–2022, select on 2023, test 2024. All 47,000,855 base samples retained from the shared cohort.
-- Four strict-exceedance thresholds: 0, 1, 5, 10 mm. Threshold is a feature in one pooled forest.
-- Selected 50 trees, depth 8, seed 5208 by mean validation Brier (0.0194223).
-- All 14 RF synthetic tests passed on Vanda before full training.
-- Zero adjacent threshold-monotonicity violations observed on the test cohort; no general guarantee.
+Completed on Vanda on 15 October 2026; scheduler Exit_status=0 and manifest status
+`complete`. Pipeline runtime: about 55m29s. Spark 3.3.1, Python 3.10.4, Java 11.0.18.
+All 14 RF tests passed before training.
 
-This archive preserves the downloaded JSON results, complete Spark PipelineModel,
-and preprocessing pipeline. Spark dot/CRC sidecars are omitted. Training code hashes
-are in manifest.json; inventory.json lists SHA256 for the archived run files.
-The model was reloaded and checked against validation predictions on Vanda during
-the run. No additional cross-version reload claim is made for the local copy.
+Train 2017–2022, select on 2023, test 2024 using the existing shared prepared data.
+Selected model: 50 trees, depth 8, seed 5208. Mean validation Brier: 0.0194223.
+Each threshold below uses the same 6,335,645 test samples.
 
-Use the same Spark version for loading the model. It expects station_id, hour,
-month, rainfall_previous_5m/30m/60m and threshold_mm as prepared features; labels
-and future totals are not needed for model scoring. Building those features from
-a station and prediction time still requires a history lookup and is not an
-implemented user-facing interface.
+| Rainfall threshold | ROC-AUC | PR-AUC | Brier | Constant baseline Brier |
+| --- | --- | --- | --- | --- |
+| >0 mm | 0.8611 | 0.5942 | 0.043471 | 0.059575 |
+| >1 mm | 0.8820 | 0.4587 | 0.019710 | 0.025050 |
+| >5 mm | 0.8687 | 0.2197 | 0.007650 | 0.008310 |
+| >10 mm | 0.8708 | 0.1200 | 0.004305 | 0.003813 |
 
-See [frozen RF/LR comparison](../../comparison/README.md). RF loses to the constant
-baseline at >10 mm and overpredicts heavy-rain probabilities. No retraining or
-calibration fitting was performed after viewing test results. GBT is pending.
+The model improves Brier over the constant baseline at 0, 1 and 5 mm, but not
+10 mm. At >10 mm its mean forecast is 2.0173%, versus 0.3828% observed, indicating
+overprediction. Zero adjacent threshold-monotonicity violations were observed on
+the test cohort; this is not a model-wide guarantee. No test-based tuning was done.
 
-Original downloaded files remain under ignored outputs/random_forest/1459817/.
+Files:
+
+- `model/`: complete Spark PipelineModel with encoding and the selected forest.
+- `manifest.json`: settings, data provenance, source hashes, counts and validation results.
+- `test_metrics.json`: full per-threshold test metrics and constant baselines.
+- `test_calibration.json`: ten-bin calibration summaries.
+- `example_predictions.json`: first 20 test predictions, not a representative sample.
+
+The model was saved, reloaded and checked on Vanda during the run. Use Spark 3.3.1
+for loading. Inputs are station_id, hour, month, rainfall_previous_5m/30m/60m and
+threshold_mm; no labels or future readings are needed for scoring.
+
+The full original download remains in ignored `outputs/random_forest/1459817/`.
+The standalone encoding copy and CRC sidecars are omitted here because `model/`
+already contains the encoding. No other models or model comparisons are included.
