@@ -16,15 +16,16 @@ module list
 java -version
 "$PYSPARK_PYTHON" --version
 # Spill only into the user's scratch directory, on the allocated node.
-export SPARK_LOCAL_DIRS="/scratch/e1496655/task2/spark-tmp-${PBS_JOBID}"
+task2_scratch="/scratch/$(id -un)"
+export SPARK_LOCAL_DIRS="${task2_scratch}/task2/spark-tmp-${PBS_JOBID}"
 mkdir -p "$SPARK_LOCAL_DIRS"
 mode="${TASK2_MODE:-validation}"
 if [[ "$mode" == tests ]]; then
     export SPARK_LOCAL_IP=127.0.0.1
-    "$PYSPARK_PYTHON" -m pytest -q tests/test_task2_prepare.py
+    "$PYSPARK_PYTHON" -m pytest -q tests/test_task2_paths.py tests/test_task2_prepare.py
     exit 0
 fi
-args=(--threshold-mm "${THRESHOLD_MM:?Set THRESHOLD_MM in qsub -v}")
+args=(--input-root "${INPUT_ROOT:-/scratch/e0969984/singapore-rainfall-analysis-and-prediction/data/processed}" --threshold-mm "${THRESHOLD_MM:?Set THRESHOLD_MM in qsub -v}")
 if [[ "$mode" == validation ]]; then
     args+=(--validation-station "${VALIDATION_STATION:?Set VALIDATION_STATION}" 
            --validation-year "${VALIDATION_YEAR:-2023}")
@@ -32,5 +33,5 @@ elif [[ "$mode" != full ]]; then
     echo 'TASK2_MODE must be tests, validation or full' >&2
     exit 1
 fi
-args+=(--output "${OUTPUT_PATH:-/scratch/e1496655/task2/${mode}-${PBS_JOBID}}")
+args+=(--output "${OUTPUT_PATH:-${task2_scratch}/task2/${mode}-${PBS_JOBID}}")
 spark-submit --master 'local[8]' --driver-memory 24g src/task2_prepare.py "${args[@]}"

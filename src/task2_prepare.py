@@ -2,21 +2,13 @@
 import argparse
 from functools import reduce
 import math
-from pathlib import Path
 
 from pyspark.sql import SparkSession, Window, functions as F
 
 INPUT = '/scratch/e0969984/singapore-rainfall-analysis-and-prediction/data/processed'
-OUTPUT = '/scratch/e1496655/task2/prepared'
+from task2_paths import output_path, default_output
 
-
-def output_path(value):
-    """Restrict all writes to a new child directory of the user's scratch root."""
-    root = Path('/scratch/e1496655').resolve()
-    path = Path(value).resolve()
-    if root not in path.parents:
-        raise ValueError('Output must be a child directory of /scratch/e1496655/')
-    return str(path)
+OUTPUT = default_output()
 
 
 def normalize_input(raw, time_column='auto'):

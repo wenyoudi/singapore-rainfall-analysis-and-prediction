@@ -7,7 +7,7 @@ import pytest
 
 pytest.importorskip('pyspark')
 from pyspark.sql import SparkSession, functions as F
-from task2_prepare import normalize_input, output_path, prepare_features, validate_input
+from task2_prepare import normalize_input, prepare_features, validate_input
 
 
 @pytest.fixture(scope='module')
@@ -91,7 +91,7 @@ def test_invalid_data_and_duplicates(spark):
         validate_input(df.withColumn('prediction_time', F.expr('prediction_time + INTERVAL 1 SECOND')))
 
 
-def test_time_column_precedence_and_output_guard(spark):
+def test_time_column_precedence(spark):
     raw = (series(spark).withColumnRenamed('prediction_time', 'timestamp')
            .withColumn('observation_time', F.expr('timestamp + INTERVAL 1 SECOND')))
     validate_input(normalize_input(raw))
@@ -99,10 +99,6 @@ def test_time_column_precedence_and_output_guard(spark):
         validate_input(normalize_input(raw, 'observation_time'))
     validate_input(normalize_input(raw.drop('timestamp').withColumn(
         'observation_time', F.expr('observation_time - INTERVAL 1 SECOND'))))
-    for path in ['/scratch/e0969984/output', '/scratch/e1496655', '/scratch/e1496655/../other']:
-        with pytest.raises(ValueError):
-            output_path(path)
-    assert output_path('/scratch/e1496655/task2/new') == '/scratch/e1496655/task2/new'
 
 
 def test_parquet_roundtrip_and_no_overwrite(spark, tmp_path):

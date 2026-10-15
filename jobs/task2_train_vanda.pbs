@@ -16,14 +16,16 @@ java_version="$(java -version 2>&1)"
 module list
 printf '%s\n' "$java_version"
 qstat -f "$PBS_JOBID" || true
-export SPARK_LOCAL_DIRS="/scratch/e1496655/task2/train-spill-${PBS_JOBID}"
+task2_scratch="/scratch/$(id -un)"
+export SPARK_LOCAL_DIRS="${task2_scratch}/task2/train-spill-${PBS_JOBID}"
 mkdir -p "$SPARK_LOCAL_DIRS"
 # Tiny automatic guards run inside the same allocation; no extra queue cycle.
-"$PYSPARK_PYTHON" -m pytest -q tests/test_task2_prepare.py tests/test_task2_train.py
+"$PYSPARK_PYTHON" -m pytest -q tests/test_task2_paths.py tests/test_task2_prepare.py tests/test_task2_train.py
 spark-submit --master 'local[8]' --driver-memory 24g \
     src/task2_train.py \
-    --output "${OUTPUT_PATH:-/scratch/e1496655/task2/final-${PBS_JOBID}}"
+    --input-root "${INPUT_ROOT:-/scratch/e0969984/singapore-rainfall-analysis-and-prediction/data/processed}" \
+    --output "${OUTPUT_PATH:-${task2_scratch}/task2/final-${PBS_JOBID}}"
 
 # Export compact review artifacts without another Spark action.
 "$PYSPARK_PYTHON" src/task2_export_results.py \
-    --run-dir "${OUTPUT_PATH:-/scratch/e1496655/task2/final-${PBS_JOBID}}"
+    --run-dir "${OUTPUT_PATH:-${task2_scratch}/task2/final-${PBS_JOBID}}"

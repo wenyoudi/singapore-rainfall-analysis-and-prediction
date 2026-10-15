@@ -20,8 +20,8 @@
 
 The original `manifest.json`, `test_metrics.json`, `test_calibration.json`,
 `example_predictions.json`, and complete six-stage `model/` directory were downloaded
-from the completed Vanda run. Source SHA-256 hashes match the local preparation and
-training scripts; calibration bin counts reconcile with test sample counts.
+from the completed Vanda run. Source SHA-256 hashes match the preparation and training scripts at commit
+`d99df34` (before the account-portability update); calibration bin counts reconcile with test sample counts.
 Model stage metadata and Parquet signatures were checked locally; actual Spark
 save/reload verification was performed inside the successful Vanda run.
 

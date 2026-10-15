@@ -47,9 +47,11 @@ Default input is the read-only directory:
 `/scratch/e0969984/singapore-rainfall-analysis-and-prediction/data/processed`.
 Files `rainfall_2017` through `rainfall_2024` must be readable by your account.
 
-`--output` must resolve to a child of `/scratch/e1496655/`. Writes use
+`--output` must resolve to a child of `/scratch/<your-current-account>/`.
+The process account is detected automatically; another account's scratch directory
+is rejected even when it is writable. Existing symlinks are resolved before checking. Writes use
 `errorifexists`; there is no overwrite option. PBS defaults to a unique directory
-`/scratch/e1496655/task2/MODE-JOBID`. Output Parquet is partitioned by `split` and
+`/scratch/<your-current-account>/task2/MODE-JOBID`. Output Parquet is partitioned by `split` and
 `year` and includes prediction time, target end time, threshold, label, and the
 features listed above. Read the output root to recover partition columns.
 Do not use target, target end time, threshold, split, or year as model predictors.
@@ -66,10 +68,23 @@ your scratch directory and can be removed after its job has finished.
 
 ## Vanda commands
 
-Put these added files into your own copy of the repository, then on Vanda:
+Use your own Vanda account and copy of the repository. The example assumes you
+cloned it under your home directory; if not, change `cd` to your actual checkout.
+Keep all Task 2 Python modules together, including `src/task2_paths.py`.
+All outputs and Spark temporary files default to your own scratch directory.
+
+The default input is the shared cleaned dataset above and requires read access.
+To use an equivalent cleaned dataset elsewhere, pass
+`qsub -v "TASK2_MODE=full,THRESHOLD_MM=5,INPUT_ROOT=/path/to/processed" jobs/task2_vanda.pbs`.
+That directory must contain `rainfall_2017` through `rainfall_2024`. Direct Python
+invocations use `--input-root`; the PBS wrapper forwards `INPUT_ROOT`.
+Do not change the input cohort when making direct model comparisons.
+
+This job only prepares data; for Logistic Regression training see
+[the training guide](task2_training.md). Then on Vanda:
 
 ```bash
-cd /scratch/e1496655/singapore-rainfall-analysis-and-prediction
+cd ~/singapore-rainfall-analysis-and-prediction
 # Tiny synthetic tests on a compute node; requires pytest in module Python.
 qsub -v TASK2_MODE=tests jobs/task2_vanda.pbs
 
@@ -80,7 +95,7 @@ qsub -v TASK2_MODE=validation,VALIDATION_STATION=S50,VALIDATION_YEAR=2023,THRESH
 qsub -v TASK2_MODE=full,THRESHOLD_MM=5 jobs/task2_vanda.pbs
 
 # Optional explicit fresh output destination:
-qsub -v TASK2_MODE=full,THRESHOLD_MM=5,OUTPUT_PATH=/scratch/e1496655/task2/prepared_v1 jobs/task2_vanda.pbs
+qsub -v "TASK2_MODE=full,THRESHOLD_MM=5,OUTPUT_PATH=/scratch/$(id -un)/task2/prepared_v1" jobs/task2_vanda.pbs
 ```
 
 The script refuses execution without a PBS job ID. Submit from the repository

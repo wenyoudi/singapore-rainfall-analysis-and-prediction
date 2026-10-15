@@ -233,7 +233,7 @@ def main():
                 'auc_num_bins': 1000, 'coefficient_upper_bound': COEFFICIENT_UPPER_BOUND,
                 'source_sha256': {
                     name: hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
-                    for name in ['task2_train.py', 'task2_prepare.py']}}
+                    for name in ['task2_train.py', 'task2_prepare.py', 'task2_paths.py']}}
     try:
         save_json(root / 'manifest.json', manifest)
         run(spark, args, root, manifest)

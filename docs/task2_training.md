@@ -1,10 +1,11 @@
 # Full-data Logistic Regression run
 
 This is a formal full-data baseline run, not a station sample. Submit one PBS job
-from the existing Vanda repository at
-`/home/svu/e1496655/singapore-rainfall-analysis-and-prediction`.
+from your own repository checkout on Vanda (the example assumes it is under
+your home directory). Keep `src/task2_paths.py` alongside the other Task 2 modules.
 
 ```bash
+cd ~/singapore-rainfall-analysis-and-prediction
 qsub jobs/task2_train_vanda.pbs
 ```
 
@@ -14,8 +15,23 @@ A failed guard stops the job before full processing. There is no manual checkpoi
 between stages. No Spark processing runs on the login node.
 
 The input remains read-only under the teammate's scratch directory. Each job writes
-a new root `/scratch/e1496655/task2/final-JOBID`; an existing root is rejected.
+a new root `/scratch/<your-current-account>/task2/final-JOBID`; an existing root is rejected.
 Set OUTPUT_PATH with qsub -v to choose another fresh directory under your scratch.
+The Python guard rejects paths outside `/scratch/<your-current-account>/`, including
+symlinks escaping that directory. Account detection uses the executing account,
+not the author of this repository. Spark temporary files also use that account.
+
+By default, the input is the team shared cleaned Parquet directory documented in
+[the preparation guide](task2_preparation.md); your account needs read access.
+For another copy of the annual cleaned data, use:
+
+```bash
+qsub -v "INPUT_ROOT=/path/to/processed,OUTPUT_PATH=/scratch/$(id -un)/task2/lr_run_v1" jobs/task2_train_vanda.pbs
+```
+
+Change `/path/to/processed` to a real directory containing all eight annual
+Parquet directories. Source data are read-only; select the same source for a fair comparison.
+The direct Python runner also accepts `--input-root` and `--output`.
 The job requests 8 CPUs, 32 GB and 12 hours, with a 24 GB driver. Vanda may adjust
 resources; retain the scheduler resource record printed in the log. Runtime and
 scratch space requirements have not been measured for this full training workload.
@@ -73,7 +89,7 @@ slope and may not capture dry-weather mass or heavy tails accurately.
 
 The expanded training and validation vectors and held-out predictions use disk-only
 persistence, avoiding keeping all expanded rows in memory. Spark spill/cache uses
-`/scratch/e1496655/task2/train-spill-JOBID`. Retained base Parquet allows later
+`/scratch/<your-current-account>/task2/train-spill-JOBID`. Retained base Parquet allows later
 recovery, but this runner does not yet implement automatic resume; do not rerun to
 the same root. Partial artifacts do not establish successful completion.
 
@@ -142,10 +158,20 @@ configuration remain in the archived manifest but are omitted from the summary.
 For an existing completed run, export without retraining or starting Spark:
 
 ```bash
-python3 src/task2_export_results.py --run-dir /scratch/e1496655/task2/final-1458499.stdct-mgmt-02
+python3 src/task2_export_results.py --run-dir "/scratch/$(id -un)/task2/final-YOUR_JOB_ID"
 ```
 
 The exporter uses only Python's standard library. Download the resulting ZIP to
 the Mac and attach it for review. Missing optional calibration/example artifacts
 are explicitly listed in the summary; a package reconstructed from pasted text
 may therefore be incomplete compared with the original run directory.
+
+## Historical run versus portable reruns
+
+The original job 1458499 used account e1496655 and remains at
+`/scratch/e1496655/task2/final-1458499.stdct-mgmt-02/`. That path is an experiment
+record and shared read-only source, not a destination other users should write to.
+The archived manifest and model describe the original code, whose source hashes
+are preserved. The account-portability changes do not retrain or replace that model.
+Use commit `d99df34` for the exact original training/preparation source. New runs
+record their own hashes, including the shared path helper.

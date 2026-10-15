@@ -4,6 +4,10 @@ This repository currently implements preprocessing and **Task 1** for the 2017-2
 
 ## Task 2: Logistic Regression baseline
 
+Task 2 scripts detect the executing Vanda account for output and temporary paths.
+Run from your own checkout; set `INPUT_ROOT` in the PBS submission if the default
+shared cleaned data are not accessible. See the guides below for examples.
+
 - [Preparation and window definitions](docs/task2_preparation.md)
 - [Training and evaluation instructions](docs/task2_training.md)
 - [Completed Vanda run, model and comparison contract](outputs/task2/logistic_regression/1458499/README.md)
