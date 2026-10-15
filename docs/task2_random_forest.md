@@ -156,3 +156,33 @@ Generated run artifacts are ignored by Git. Archive model files separately befor
 scratch cleanup. Local tests use Spark 3.5.3/Python 3.11; actual Spark 3.3.1 and
 full-data RF execution on Vanda remain to be verified. No remote job is submitted
 by creating this branch.
+
+## Verified run and saved comparison
+
+Run `1459817.stdct-mgmt-02` completed on Vanda on 15 October 2026. The provided
+scheduler output reports Exit_status=0; its manifest reports complete. All 14 RF
+synthetic tests passed there. Full pipeline time from the manifest is about
+55 minutes 29 seconds. The selected model has 50 trees and depth 8.
+
+The downloaded original remains ignored at `outputs/random_forest/1459817/`.
+A versioned archive, including the model and encoding but excluding Spark CRC
+files, is at `outputs/task2/random_forest/1459817/`. The separate LR comparison
+snapshot contains only compact JSON artifacts copied from its branch. Its
+`source.json` records the source commit. No LR branch changes or merges were made.
+
+Generate figures and comparison CSVs locally, with no Spark or retraining:
+
+```bash
+MPLCONFIGDIR=/tmp/rainfall-matplotlib .venv/bin/python src/task2_compare_results.py
+```
+
+On Windows after installing requirements-plots.txt into `.venv`:
+
+```powershell
+.\.venv\Scripts\python.exe src/task2_compare_results.py
+```
+
+Results are at `outputs/task2/comparison/README.md`, with full/zoomed calibration
+and metric comparison figures in PNG/PDF, CSV tables and input hashes. GBT is
+pending and is excluded from the calculations. Test findings must not guide
+retuning of a model still described as evaluated on untouched 2024 data.

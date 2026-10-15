@@ -460,3 +460,9 @@ Task 1 development belongs on `eda`. After validation, commit the changes there 
 The Random Forest workflow reads the shared prepared dataset without rebuilding
 it and saves new artifacts under your Vanda account. Start with its PBS validation
 mode before training. See [the complete workflow](docs/task2_random_forest.md).
+
+The completed RF run `1459817` is archived with its model under
+[outputs/task2/random_forest/1459817](outputs/task2/random_forest/1459817/README.md).
+[RF versus LR results and calibration plots](outputs/task2/comparison/README.md)
+use frozen test outputs; GBT is pending. Regenerate them without training using
+`python src/task2_compare_results.py` in the plotting environment.

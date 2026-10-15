@@ -1,0 +1,142 @@
+[
+  {
+    "station_id": "S06",
+    "prediction_time": "2024-11-07T16:50:00",
+    "threshold_mm": 0.0,
+    "label": 1.0,
+    "p": 0.4274158687249719
+  },
+  {
+    "station_id": "S06",
+    "prediction_time": "2024-11-07T16:50:00",
+    "threshold_mm": 1.0,
+    "label": 0.0,
+    "p": 0.2309182392420876
+  },
+  {
+    "station_id": "S06",
+    "prediction_time": "2024-11-07T16:50:00",
+    "threshold_mm": 5.0,
+    "label": 0.0,
+    "p": 0.21881172949352667
+  },
+  {
+    "station_id": "S06",
+    "prediction_time": "2024-11-07T16:50:00",
+    "threshold_mm": 10.0,
+    "label": 0.0,
+    "p": 0.21881172949352667
+  },
+  {
+    "station_id": "S06",
+    "prediction_time": "2024-11-07T16:55:00",
+    "threshold_mm": 0.0,
+    "label": 1.0,
+    "p": 0.4274158687249719
+  },
+  {
+    "station_id": "S06",
+    "prediction_time": "2024-11-07T16:55:00",
+    "threshold_mm": 1.0,
+    "label": 0.0,
+    "p": 0.2309182392420876
+  },
+  {
+    "station_id": "S06",
+    "prediction_time": "2024-11-07T16:55:00",
+    "threshold_mm": 5.0,
+    "label": 0.0,
+    "p": 0.21881172949352667
+  },
+  {
+    "station_id": "S06",
+    "prediction_time": "2024-11-07T16:55:00",
+    "threshold_mm": 10.0,
+    "label": 0.0,
+    "p": 0.21881172949352667
+  },
+  {
+    "station_id": "S06",
+    "prediction_time": "2024-11-07T17:00:00",
+    "threshold_mm": 0.0,
+    "label": 1.0,
+    "p": 0.4038089056672016
+  },
+  {
+    "station_id": "S06",
+    "prediction_time": "2024-11-07T17:00:00",
+    "threshold_mm": 1.0,
+    "label": 0.0,
+    "p": 0.20767441417134574
+  },
+  {
+    "station_id": "S06",
+    "prediction_time": "2024-11-07T17:00:00",
+    "threshold_mm": 5.0,
+    "label": 0.0,
+    "p": 0.20767441417134574
+  },
+  {
+    "station_id": "S06",
+    "prediction_time": "2024-11-07T17:00:00",
+    "threshold_mm": 10.0,
+    "label": 0.0,
+    "p": 0.20767441417134574
+  },
+  {
+    "station_id": "S06",
+    "prediction_time": "2024-11-07T17:05:00",
+    "threshold_mm": 0.0,
+    "label": 1.0,
+    "p": 0.2614567711093374
+  },
+  {
+    "station_id": "S06",
+    "prediction_time": "2024-11-07T17:05:00",
+    "threshold_mm": 1.0,
+    "label": 0.0,
+    "p": 0.12394033257986939
+  },
+  {
+    "station_id": "S06",
+    "prediction_time": "2024-11-07T17:05:00",
+    "threshold_mm": 5.0,
+    "label": 0.0,
+    "p": 0.12394033257986939
+  },
+  {
+    "station_id": "S06",
+    "prediction_time": "2024-11-07T17:05:00",
+    "threshold_mm": 10.0,
+    "label": 0.0,
+    "p": 0.12394033257986939
+  },
+  {
+    "station_id": "S06",
+    "prediction_time": "2024-11-07T17:10:00",
+    "threshold_mm": 0.0,
+    "label": 0.0,
+    "p": 0.2614567711093374
+  },
+  {
+    "station_id": "S06",
+    "prediction_time": "2024-11-07T17:10:00",
+    "threshold_mm": 1.0,
+    "label": 0.0,
+    "p": 0.12394033257986939
+  },
+  {
+    "station_id": "S06",
+    "prediction_time": "2024-11-07T17:10:00",
+    "threshold_mm": 5.0,
+    "label": 0.0,
+    "p": 0.12394033257986939
+  },
+  {
+    "station_id": "S06",
+    "prediction_time": "2024-11-07T17:10:00",
+    "threshold_mm": 10.0,
+    "label": 0.0,
+    "p": 0.12394033257986939
+  }
+]

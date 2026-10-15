@@ -1,0 +1,16 @@
+{
+  "inputs": {
+    "Random Forest": {
+      "manifest.json": "bb38126aeb29e35359504b13c13e199e894888ed628bf2ae80c253c551615308",
+      "test_metrics.json": "4e219abb6a7871af8400fa0886c155033a472924cebfedecb682008a4be49209",
+      "test_calibration.json": "856c70bc92636d55a98af2238f205efd218dd14c2da8346d8e6eccd557750c90"
+    },
+    "Logistic regression": {
+      "manifest.json": "471e9c53186b1e06403ae85c2eadddaeef78c25d8866d3a6bb03162751b1c9d1",
+      "test_metrics.json": "60f7ea80ea3bd0ef3a66b52b47928f7124d8a2454e7c7fe0d42d4d2e0ffef77b",
+      "test_calibration.json": "53aa162cc6b17fd65b473212ba8445a0582336eb0691d8381e9212df1e85c564"
+    }
+  },
+  "gbt_status": "pending",
+  "script_sha256": "a976cd98cde94c583baaa3675a3db344af0322e5af8b7aec8bf1057f53f8edae"
+}
