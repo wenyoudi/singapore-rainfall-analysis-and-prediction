@@ -1,13 +1,13 @@
 # Singapore Rainfall Analysis and Prediction
 
-This repository implements preprocessing and **Task 1** for the 2017-2024 five-minute rainfall datasets, plus **Task 2 dataset preparation**. It includes Spark profiling, cleaning, validation, EDA summaries, local figure generation, and a shared chronological prediction dataset. Task 2 model training and evaluation are not implemented yet.
+This repository implements preprocessing and **Task 1** for the 2017-2024 five-minute rainfall datasets, plus **Task 2 dataset preparation**. It includes Spark profiling, cleaning, validation, EDA summaries, local figure generation, and a shared chronological prediction dataset. Task 2 GBT training, independent testing and prediction comparison code are available under `task2/Model_GBT/`; full-data execution is not verified locally.
 
 ## Current progress (2026-10-14)
 
 - Preprocessing and Task 1 outputs are available; saved validation covers 48,538,627 cleaned observations across eight years.
 - Saved Task 2 notebook outputs confirm 47,048,074 eligible station-time observations and 188,192,296 threshold-specific examples, with remote export completed.
 - Large raw, cleaned and Task 2 datasets are not present locally. The local data directory contains geography assets only. See the [Task 2 README](task2/README.md) for the exact remote output path, file inventory, completed work and next steps.
-- Next: verify and freeze the remote dataset version, run semantic checks, then implement baseline/GBT training and probability evaluation.
+- Next: verify the remote dataset version, then run the [GBT training, testing and comparison workflow](task2/Model_GBT/README.md).
 
 ## Data and environments
 
