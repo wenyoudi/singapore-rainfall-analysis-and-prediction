@@ -1,92 +1,88 @@
-# Gradient Boosted Trees for Rainfall Prediction
+# Gradient-boosted trees for rainfall prediction
 
-This directory contains the GBT contribution to Task 2: estimating the probability that rainfall accumulated over the next 30 minutes strictly exceeds 0, 1, 5, or 10 mm.
+The GBT model estimates the probability that rainfall over the next 30 minutes exceeds 0, 1, 5 or 10 mm. A single Spark pipeline uses the rainfall threshold as an input and produces a probability for each station, prediction time and threshold.
 
-## Files
+GBT-05 is the selected model: 40 boosting iterations, maximum depth 5, step size 0.1, seed 5208 and 128 bins. It was trained on a deterministic 2% sample and selected using sampled-validation results. The saved final evaluation covers the complete test partition at a fixed probability cutoff of 0.5.
+
+## Directory structure
 
 | Path | Purpose |
 | --- | --- |
-| `src/train_gbt.py` | Spark training pipeline and training utilities |
-| `notebooks/task2_gbt_training.ipynb` | Training and validation workflow with saved execution records |
-| `notebooks/tune.ipynb` | Saved six-configuration tuning experiment |
+| `src/train_gbt.py` | Dataset loading, deterministic sampling, pipeline training and validation metrics |
+| `notebooks/task2_gbt_training.ipynb` | Initial training experiment and validation inspection, including saved outputs |
+| `notebooks/tuning_record.md` | Original six-configuration tuning commands and saved execution output |
 | `notebooks/test_gbt_final.ipynb` | Self-contained evaluation of the frozen GBT-05 model |
-| `outputs/` | Experiment artifacts stored locally or on Vanda; excluded from Git |
+| `results/` | Small CSV summaries, report figures and captions |
+| `results/make_report_figures.py` | Figure generation from completed test artifacts |
+| `outputs/` | Local experiment manifests, Spark models and predictions; excluded from Git |
 
-The tuning notebook references a remotely used `tune_gbt.py` that is not included in this checkout. Its saved outputs document the experiment; the checkout does not provide a complete executable tuning workflow.
+The initial notebook records a 20-iteration, depth-4 model. Its feature importance and reliability results describe that experiment. Use the selected run's artifacts for GBT-05 reporting. The tuning record preserves the historical experiment; its original remote helper script is unavailable.
 
-## Prediction and evaluation design
+## Data and model design
 
-The pipeline uses StringIndexer for station identifiers, VectorAssembler, and Spark MLlib GBTClassifier. Predictors are station identifier, hour, month, rainfall over the previous 5, 30, and 60 minutes, and rainfall threshold. Future rainfall and labels are excluded from predictors. Unseen stations use a reserved category. No class weighting or probability calibration is fitted.
+The intended split is 2017–2022 for training, 2023 for validation and 2024 for testing. Prepared data must contain complete historical and future windows and exclude target windows crossing split boundaries. See the [data-preparation contract](https://github.com/wenyoudi/singapore-rainfall-analysis-and-prediction/blob/Task2DataPreparation/task2/data_prep/README.md). Data preparation is maintained on the `Task2DataPreparation` branch. The year coverage of the remote partition still requires verification against the source dataset.
 
-The intended chronological split is 2017–2022 for training, 2023 for validation, and 2024 for testing. Prepared data must enforce complete historical and future windows and exclude target windows crossing split boundaries. See the shared data-preparation documentation for the contract. The remote prepared dataset used by the saved GBT run has not been independently verified locally.
+The loader accepts either shared prepared Parquet under `split=train/`, `split=validation/` and `split=test/`, or data-preparation exports under `examples/split=.../`. Shared observations contain `station_id`, `prediction_time`, `hour`, `month`, `rainfall_previous_5m`, `rainfall_previous_30m`, `rainfall_previous_60m` and `future_rainfall_30m`. The loader expands each observation into four thresholds and defines the label as `future_rainfall_30m > threshold_mm`. Exported examples already contain `threshold_mm` and `label`; their timestamp and historical rainfall columns are renamed on loading.
 
-The six recorded configurations use a deterministic 2% training sample and a 10% validation sample. All four thresholds for each sampled station–time remain together. Each threshold has 680,053 training examples and 668,341 validation examples; threshold rows are not independent station–time observations.
+Predictors are station identifier, hour, month, previous 5-, 30- and 60-minute rainfall, and rainfall threshold. Future rainfall and labels are excluded from features. StringIndexer learns station categories from training data and reserves a category for unseen stations. VectorAssembler feeds these features to Spark MLlib GBTClassifier. No class weighting or probability calibration is fitted. Predictions from the four threshold rows are not constrained to decrease as the threshold increases.
 
-GBT-05 is the provisional candidate under the recorded mean Brier-skill ranking:
+Sampling hashes station and prediction time with a fixed seed, keeping all four threshold rows together. The tuning experiment used 680,053 training and 668,341 validation examples per threshold. These are repeated threshold evaluations of station-time observations, not four independent samples.
 
-| Parameter | Value |
-| --- | --- |
-| Boosting iterations | 40 |
-| Maximum tree depth | 5 |
-| Step size | 0.10 |
-| Seed | 5208 |
-| Maximum bins | 128 |
+## Training and validation
 
-Saved sampled-validation results for GBT-05:
+Use a compatible PySpark and Java environment on a Vanda compute node. The recorded experiment used Spark 3.5.6. The training notebook also requires pandas and Matplotlib.
 
-| Threshold | Event rate | ROC-AUC | PR-AUC | Brier score |
-| --- | ---: | ---: | ---: | ---: |
-| > 0 mm | 6.690% | 0.8770 | 0.6453 | 0.036494 |
-| > 1 mm | 2.643% | 0.8816 | 0.4897 | 0.017941 |
-| > 5 mm | 0.890% | 0.8890 | 0.2927 | 0.007755 |
-| > 10 mm | 0.423% | 0.8991 | 0.1884 | 0.004341 |
+1. Open `notebooks/task2_gbt_training.ipynb` and set `DATASET_ROOT` to the prepared dataset.
+2. Set `RUN_TRAINING = True` to train, then choose sampling fractions and model parameters. The defaults reproduce the initial configuration; set 40 iterations and depth 5 for GBT-05 parameters.
+3. Run the cells in order. Each training run saves a new timestamped directory beneath `outputs/`.
+4. To inspect a saved run, set `RUN_TRAINING = False` and `PREFERRED_RUN` to its directory name. If omitted, the notebook loads the newest completed run; this is a convenience for inspection, not a model-selection rule.
 
-These are validation results, not final test results. At 10 mm, Brier score is worse than the constant-probability baseline using the training event rate. Good ranking does not guarantee accurate probabilities. Initial-model feature importance and calibration results must not be attributed to GBT-05.
+Choose model parameters using validation data. Training exports `model/`, `run_manifest.json`, `metrics.csv` and `reliability_bins.csv`. A completed manifest records sampling fractions, parameters, training class counts and feature importance. Failed runs retain a failure status and error message.
 
-## Run the final test
+The training helper's optional `evaluate_test=True` path requires full training and validation fractions. Use the final-test notebook to evaluate the existing sampled-training GBT-05 model without retraining.
 
-1. Sync `notebooks/test_gbt_final.ipynb` to Vanda and obtain a compute-node allocation.
-2. Open it in the training environment, with compatible PySpark and Java. The recorded modelling experiment used Spark 3.5.6.
-3. Run the cells in order. No additional Python helper files are required.
+## Final test
 
-The notebook defaults to four cores, a 16 GB Spark driver heap, and a fixed classification probability threshold of 0.5. Allocate additional memory for Python and Spark overhead.
+1. Open `notebooks/test_gbt_final.ipynb` in the training environment.
+2. Set `MODEL_ROOT` if automatic discovery cannot locate `Model_GBT/outputs/tuning_stage1/`. Set `RUN_ROOT` to an exact saved run directory if multiple matching models exist.
+3. Keep the decision cutoff fixed before testing and run the cells in order.
 
-It searches `Model_GBT/outputs/tuning_stage1/` for a unique completed model matching GBT-05 parameters and reads the dataset path from that run's manifest. Set `MODEL_ROOT` if automatic project discovery fails. Set `RUN_ROOT` to the exact selected run directory if several matching models exist.
+The notebook selects a unique completed model with 40 iterations, depth 5 and step size 0.1. It reads the dataset path from that run's manifest and requires `model/` and `metrics.csv`. The original dataset path must be accessible in the execution environment. Models and large datasets are excluded from Git; a fresh clone alone cannot run this evaluation.
 
-Required saved artifacts:
-
-```text
-selected_run/
-├── model/
-├── run_manifest.json
-└── metrics.csv
-```
-
-The prepared dataset referenced by the manifest must also be accessible. Both shared prepared Parquet (`split=test/`) and data-preparation exports (`examples/split=test/`) are supported. The complete test split is evaluated without retraining or sampling. Missing or ambiguous models cause an error rather than automatic model selection.
-
-Models and large datasets are not committed to Git; a fresh clone alone cannot execute the test.
-
-## Outputs
-
-Each evaluation creates `test_evaluation/<UTC timestamp>/` inside the selected run:
+The default Spark session uses four cores, a 16 GB driver heap and the Asia/Singapore timezone. Allocate additional memory for Python and Spark overhead. The complete test split is scored without sampling or retraining. Each execution creates `test_evaluation/<UTC timestamp>/` within the selected run.
 
 | Output | Contents |
 | --- | --- |
-| `test_metrics.csv` | Per-threshold ROC-AUC, PR-AUC, Brier, baseline Brier, Brier skill, precision, recall, F1 and confusion counts |
-| `test_reliability_bins.csv` | Probability bins for reliability diagrams; no calibration model is fitted |
+| `test_metrics.csv` | Per-threshold AUC, Brier score, baseline, Brier skill, precision, recall, F1 and confusion counts |
+| `test_reliability_bins.csv` | Occupied equal-width probability bins, counts, mean probabilities and observed frequencies |
 | `confusion_matrix.csv` | All actual/predicted class combinations, including zero counts |
-| `validation_test_comparison.csv` | Saved validation sample versus complete test results |
-| `prediction_preview.csv` | First 200 predictions ordered by time, station and rainfall threshold |
-| `predictions/` | All scored observations as Parquet |
-| `feature_importance.csv` | Importance recorded in the selected manifest, if available |
-| `test_manifest.json` | Completion status, model provenance and metrics |
+| `validation_test_comparison.csv` | Saved sampled-validation metrics alongside complete-test metrics |
+| `prediction_preview.csv` | First 200 predictions ordered by time, station and threshold |
+| `predictions/` | Complete scored observations in Parquet format |
+| `feature_importance.csv` | Selected model's importance values, when recorded in the training manifest |
+| `test_manifest.json` | Completion status, model provenance, decision cutoff and metrics |
 
-The baseline predicts each threshold's training-sample event rate. Positive Brier skill indicates improvement over that baseline. AUC uses Spark's 1,000-bin approximation and is empty for a single-class subset. Precision is empty when no positives are predicted; recall is empty when no positives occur.
+Confirm `TEST COMPLETE` in the notebook and `status: complete` in the manifest. Failed evaluations may leave partial files.
 
-Confirm both `TEST COMPLETE` in notebook output and `status: complete` in the test manifest. Failed runs may leave partial files.
+## Test performance
 
-## Reporting and verification
+The recorded completed evaluation is `outputs/tuning_stage1/GBT-05/test_evaluation/20261016T103557030872Z`. Each threshold contains 6,335,645 test examples. Classification uses probability >= 0.5.
 
-Select the model and decision rule using development data before testing. Do not tune parameters or decision thresholds using test outcomes. A model trained on 2% of training data remains a sampled-training model even when tested on the complete test split. Cross-model comparisons require identical evaluation samples and rainfall thresholds.
+| Threshold | ROC-AUC | PR-AUC | Brier score | Precision | Recall | F1 | Brier skill |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| > 0 mm | 0.8602 | 0.6270 | 0.036028 | 77.90% | 44.18% | 0.5638 | 39.52% |
+| > 1 mm | 0.8515 | 0.4833 | 0.017659 | 69.97% | 34.44% | 0.4616 | 29.50% |
+| > 5 mm | 0.8579 | 0.2681 | 0.007495 | 63.12% | 11.68% | 0.1971 | 9.81% |
+| > 10 mm | 0.8635 | 0.1703 | 0.004049 | 51.89% | 4.02% | 0.0746 | -6.19% |
 
-Notebook syntax and saved-model selection logic were checked locally. Full Spark testing has not been executed locally because the Java runtime, remote model artifacts and prepared dataset are unavailable. Final test results remain pending execution on Vanda.
+Brier score is the mean squared probability error. The baseline predicts each threshold's training-sample event frequency. Brier skill is `1 - model_brier / baseline_brier`; positive values indicate improvement over that baseline. ROC-AUC and PR-AUC use Spark's 1,000-bin approximation and are empty for single-class subsets. Precision is empty when no positives are predicted; recall is empty when no positives occur.
+
+At 10 mm, recall is 4.02% and Brier skill is negative. The model provides useful ranking but misses most heavy-rainfall events at cutoff 0.5 and performs worse than the training-frequency probability baseline at this threshold. Lower test Brier scores than validation do not establish better calibration because event prevalence differs. Reliability diagrams show probability agreement; feature importance describes model usage, not causal effects.
+
+Do not use test outcomes to select parameters or decision cutoffs. Compare models on the same observations and thresholds, and retain the 2% training qualification in reports.
+
+## Report artifacts and verification
+
+See [results](results/README.md) for figure generation and provenance. The three report CSV summaries match the corresponding local completed-test files. Confusion counts, derived classification metrics, Brier-skill arithmetic and reliability-bin totals can be checked from those artifacts.
+
+Local checks cover Python and notebook syntax, file references and saved-result consistency. Spark training and inference require Java and the prepared dataset; they have not been rerun in this local environment. Saved execution output and completed manifests document the recorded remote runs.

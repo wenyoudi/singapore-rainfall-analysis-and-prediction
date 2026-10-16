@@ -33,6 +33,7 @@ def select_fraction(frame, fraction, seed):
         raise ValueError('Sampling fraction must be in (0, 1]')
     if fraction == 1:
         return frame
+    # Hash station-time keys so expanded threshold rows stay in the same sample.
     bucket = F.pmod(
         F.xxhash64('station_id', 'prediction_time', F.lit(seed)),
         F.lit(1_000_000)
@@ -41,6 +42,7 @@ def select_fraction(frame, fraction, seed):
 
 
 def evaluate(predictions, split):
+    """Return per-threshold ranking metrics, Brier scores and reliability bins."""
     scored = predictions.withColumn(
         'p', vector_to_array('probability')[1]
     ).persist(StorageLevel.DISK_ONLY)
@@ -87,6 +89,7 @@ def evaluate(predictions, split):
 
 
 def write_csv(path, rows):
+    """Write a nonempty list of dictionaries with a shared column order."""
     if not rows:
         raise ValueError(f'No rows to write: {path}')
     with path.open('w', newline='', encoding='utf-8') as handle:
@@ -104,6 +107,7 @@ def read_dataset_split(spark, dataset_root, name):
     examples = (dataset / 'examples').is_dir()
     base = dataset / 'examples' if examples else dataset
     frame = spark.read.option('basePath', str(base)).parquet(str(base / f'split={name}'))
+    # data_prep exports already contain threshold rows and labels.
     if examples:
         aliases = {'timestamp': 'prediction_time', 'past_5m_mm': 'rainfall_previous_5m',
                    'past_30m_mm': 'rainfall_previous_30m', 'past_60m_mm': 'rainfall_previous_60m'}
@@ -116,6 +120,7 @@ def read_dataset_split(spark, dataset_root, name):
     missing = set(required) - set(frame.columns)
     if missing:
         raise ValueError(f'Missing columns in {name}: {sorted(missing)}')
+    # Remove unusable inputs before assembling Spark feature vectors.
     frame = frame.dropna(subset=required)
     for column in required:
         if column in RAINFALL_COLUMNS or column in ('label', 'threshold_mm'):
@@ -165,7 +170,8 @@ def run_training(spark, dataset_root, output_root, train_fraction=.01,
     output.mkdir(parents=True, exist_ok=False)
     record = {
         'status': 'running', 'dataset_root': str(dataset),
-        'dataset_format': 'shared_prepared_parquet', 'thresholds_mm': THRESHOLDS,
+        'dataset_format': ('data_prep_examples' if (dataset / 'examples').is_dir()
+                           else 'shared_prepared_parquet'), 'thresholds_mm': THRESHOLDS,
         'spark_version': spark.version,
         'started_utc': datetime.now(timezone.utc).isoformat(),
         'train_fraction': train_fraction, 'validation_fraction': validation_fraction,
@@ -193,9 +199,11 @@ def run_training(spark, dataset_root, output_root, train_fraction=.01,
         record['training_balance'] = [r.asDict() for r in balances]
         print('Training counts:', record['training_balance'], flush=True)
 
+        # Fit station categories on training data only, reserving one unseen category.
         indexer = StringIndexer(
             inputCol='station_id', outputCol='station_index', handleInvalid='keep'
         ).fit(full_train.select('station_id').distinct())
+        # Spark requires enough bins to represent every station category.
         max_bins = max(128, len(indexer.labels) + 1)
         record['max_bins'] = max_bins
         assembler = VectorAssembler(
