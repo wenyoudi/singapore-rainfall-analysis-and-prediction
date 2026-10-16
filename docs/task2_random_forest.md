@@ -107,3 +107,16 @@ training-prevalence constant baseline. RF probabilities need not be calibrated
 or monotonic in rainfall threshold; the manifest records observed monotonicity.
 The model accepts prepared historical features, not just station and time. A
 station/time history lookup interface is outside this implementation.
+
+## Calibration figure for Section 6.3
+
+Generate the RF-only reliability diagram from saved test bins (no Spark or retraining):
+
+```bash
+MPLCONFIGDIR=/tmp/rainfall-matplotlib .venv/bin/python src/plot_rf_calibration.py
+```
+
+The script checks bin totals and weighted averages against the saved metrics.
+`outputs/task2/random_forest/1459817/rf_calibration.png` and `.pdf` contain four
+threshold panels, with low-probability insets. Hollow markers identify bins with
+fewer than 100 samples. The insets magnify existing bins, without rebinning.

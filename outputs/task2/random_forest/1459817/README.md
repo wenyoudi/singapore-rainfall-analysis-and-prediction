@@ -35,3 +35,12 @@ threshold_mm; no labels or future readings are needed for scoring.
 The full original download remains in ignored `outputs/random_forest/1459817/`.
 The standalone encoding copy and CRC sidecars are omitted here because `model/`
 already contains the encoding. No other models or model comparisons are included.
+
+## Calibration diagram
+
+![Random Forest calibration](rf_calibration.png)
+
+The dashed diagonal denotes perfect calibration. Points above it indicate
+underprediction; points below indicate overprediction. Insets show probabilities
+from 0–5% using the original saved bins. Hollow markers identify bins with fewer
+than 100 samples. The PDF version is available as `rf_calibration.pdf`.
