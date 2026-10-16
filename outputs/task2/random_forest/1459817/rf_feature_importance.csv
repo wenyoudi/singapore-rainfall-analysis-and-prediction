@@ -1,0 +1,8 @@
+feature,encoded_columns,importance
+Previous 5-minute rainfall,1,0.3583209048836943
+Previous 30-minute rainfall,1,0.30822941672981635
+Previous 60-minute rainfall,1,0.16068235962997776
+Rainfall threshold,1,0.15590141491263393
+Hour,25,0.0132066850905444
+Month,13,0.0034743631434195395
+Station ID,89,0.00018485560991389472

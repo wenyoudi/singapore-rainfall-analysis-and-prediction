@@ -44,3 +44,14 @@ The dashed diagonal denotes perfect calibration. Points above it indicate
 underprediction; points below indicate overprediction. Insets show probabilities
 from 0–5% using the original saved bins. Hollow markers identify bins with fewer
 than 100 samples. The PDF version is available as `rf_calibration.pdf`.
+
+## Feature importance
+
+![Grouped RF feature importance](rf_feature_importance.png)
+
+The three historical rainfall features account for 82.72% of normalized
+impurity-based importance, threshold 15.59%, hour 1.32%, month 0.35% and station
+0.02%. Categorical importances are summed across one-hot columns. Exact values
+are in `rf_feature_importance.csv`; a PDF version accompanies the PNG. These
+scores describe the fitted forest and are not causal effects or feature-ablation
+results.

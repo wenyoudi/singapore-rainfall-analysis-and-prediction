@@ -120,3 +120,19 @@ The script checks bin totals and weighted averages against the saved metrics.
 `outputs/task2/random_forest/1459817/rf_calibration.png` and `.pdf` contain four
 threshold panels, with low-probability insets. Hollow markers identify bins with
 fewer than 100 samples. The insets magnify existing bins, without rebinning.
+
+## Feature importance for Section 6.5
+
+```bash
+MPLCONFIGDIR=/tmp/rainfall-matplotlib .venv/bin/python src/plot_rf_feature_importance.py
+```
+
+This produces an RF-only ranking in PNG/PDF and a seven-row CSV beside the saved
+results. Importances are taken from the selected model's manifest. Categorical
+columns are summed by feature; the saved encoder widths (89 station, 25 hour,
+13 month) were checked directly in its Parquet metadata. The script checks the
+saved feature order and normalized importance total. For a different fitted
+encoder, supply its widths with `--category-sizes STATION HOUR MONTH`.
+These are impurity-based training importances, not permutation effects or an
+ablation study. Correlated historical windows make individual rankings dependent
+on how the forest allocates splits.
