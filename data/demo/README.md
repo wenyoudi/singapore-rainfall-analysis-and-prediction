@@ -25,8 +25,11 @@ Snappy Parquet file under `rainfall_2024/` (approximately 28 KB).
 - Optional subsequent-rainfall verification: through 2 January 23:25.
 - Earlier times lack the required preceding hour; later verification windows
   extend beyond the supplied observations. The interface handles these explicitly.
-- Suggested query: S33, 1 January 2024 at 01:00 SGT, threshold 5 mm. The actual
-  saved GBT displays 3.4%; subsequent observed rainfall totals 0 mm.
+- Default wet-weather query: S50, 1 January 2024 at 13:50 SGT, threshold 5 mm.
+  The actual saved GBT displays 67.9%. This example was deliberately selected
+  from the subset to illustrate a higher probability, not to assess performance.
+- Dry-weather comparison: S33, 1 January 2024 at 01:00 SGT, threshold 5 mm.
+  The saved GBT displays 3.4%; subsequent observed rainfall totals 0 mm.
 
 ## Provenance and rebuilding
 

@@ -252,9 +252,10 @@ cleaned five-minute observations, covering **1 January 2024 00:00 through
 | S50 | Clementi Road |
 
 Predictions are available from 1 January 01:00 through 2 January 23:55; historical
-verification is available through 2 January 23:25. Try S33, 1 January 2024 at
-01:00 SGT, threshold 5 mm: the saved GBT displays 3.4%, with 0 mm subsequently
-observed. These values are calculated by the model, not hardcoded in the app.
+verification is available through 2 January 23:25. The default wet-weather example is S50, 1 January 2024 at 13:50 SGT,
+threshold 5 mm: the saved GBT displays 67.9%. This example was deliberately
+selected to illustrate a higher predicted probability; it is not representative
+of overall model performance. These values are calculated by the model, not hardcoded in the app.
 
 **The subset is for interface demonstration only. It is not the evaluation
 dataset and does not replace the reported full experimental cohorts or metrics.**

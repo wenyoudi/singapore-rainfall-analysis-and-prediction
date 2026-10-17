@@ -57,15 +57,16 @@ def test_bundled_demo_default_real_model_and_coverage(spark, monkeypatch):
     assert predictor.observations.count() == manifest['rows'] == 1728
     assert [s['id'] for s in predictor.stations()] == ['S24', 'S33', 'S50']
     assert predictor.observations.select('station_id', 'prediction_time').distinct().count() == 1728
-    when = datetime(2024, 1, 1, 1, tzinfo=SG)
+    when = datetime.fromisoformat(manifest['example']['prediction_time'])
     for threshold in [0., 1., 5., 10.]:
         reference = prepare_features(predictor.observations, threshold).where(
-            (F.col('station_id') == 'S24') & (F.col('prediction_time') == F.lit(when)))
+            (F.col('station_id') == 'S50') & (F.col('prediction_time') == F.lit(when)))
         expected = predictor.model.transform(reference).select(vector_to_array('probability')[1]).first()[0]
-        actual = predictor.predict('S24', when, threshold)['probability']
+        actual = predictor.predict('S50', when, threshold)['probability']
         assert actual == pytest.approx(expected, abs=1e-12)
         if threshold == 5.:
             default_probability = expected
+            assert default_probability > .5
     at = AppTest.from_file(str(ROOT/'streamlit_app.py'), default_timeout=90).run()
     assert not at.exception
     assert any('Demonstration data' in x.value and 'not the dataset used to evaluate' in x.value for x in at.info)
@@ -75,6 +76,9 @@ def test_bundled_demo_default_real_model_and_coverage(spark, monkeypatch):
     at.button[0].click().run()
     assert not at.exception
     assert at.metric[0].value == f'{default_probability:.1%}'
+    chart = json.loads(at.get('vega_lite_chart')[0].proto.spec)
+    assert chart['encoding']['y']['scale']['domain'][0] == 0
+    assert chart['encoding']['y']['scale']['domain'][1] > 0
     at.selectbox[0].select(predictor.stations()[1]).run()
     assert not at.metric  # Changing station clears the old station's estimate.
     at.date_input[0].set_value(datetime(2024, 1, 2).date()).run()
@@ -83,6 +87,14 @@ def test_bundled_demo_default_real_model_and_coverage(spark, monkeypatch):
     expected = predictor.predict('S33', datetime(2024, 1, 2, 1, tzinfo=SG), 5.)['probability']
     assert at.metric[0].value == f'{expected:.1%}'
     assert any('S33' in x.value for x in at.markdown)
+    # A dry real-data window must still have a non-degenerate, non-negative axis.
+    at.selectbox[0].select(predictor.stations()[0]).run()
+    at.date_input[0].set_value(when.date()).run()
+    at.time_input[0].set_value(when.replace(hour=1, minute=0).time()).run()
+    at.button[0].click().run()
+    assert not at.exception
+    chart = json.loads(at.get('vega_lite_chart')[0].proto.spec)
+    assert chart['encoding']['y']['scale']['domain'] == [0, 1.]
     at.date_input[0].set_value(when.date()).run()
     at.time_input[0].set_value(when.replace(hour=0).time()).run()
     at.button[0].click().run()

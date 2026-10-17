@@ -1,5 +1,6 @@
 """Historical Singapore rainfall prediction dashboard. Run with Streamlit."""
 from datetime import datetime, time, timedelta
+import json
 import os
 from pathlib import Path
 import sys
@@ -36,6 +37,7 @@ def main():
     st.write('Select a station and historical time to estimate the chance of rainfall exceeding your threshold.')
     data_root = os.environ.get('RAINFALL_DATA_ROOT', str(ROOT/'data/demo'))
     demo = Path(data_root).expanduser().resolve() == (ROOT/'data/demo').resolve()
+    example = json.loads((ROOT/'data/demo/manifest.json').read_text()).get('example') if demo else None
     model_name = os.environ.get('RAINFALL_MODEL', 'GBT').upper()
     master = os.environ.get('RAINFALL_SPARK_MASTER', 'local[2]')
     try:
@@ -61,12 +63,16 @@ def main():
                 f'{first:%d %b %Y} – {last:%d %b %Y} (SGT). '
                 'Real cleaned observations for trying the interface, not the dataset used to evaluate the models. '
                 'See the README for full 2017–2024 data and connection instructions.')
+        st.caption('The default wet-weather example was deliberately selected to illustrate a higher '
+                   'predicted probability. It is not representative of overall model performance.')
     st.caption(f'{model_name} saved model · historical replay · all times in Singapore time (UTC+8)')
     left, right = st.columns([1, 1.5], gap='large')
     with left:
         st.subheader('Prediction inputs')
         # Outside the form so changing station updates its date range immediately.
         selected = st.selectbox('Monitoring station', stations,
+                                index=next((i for i, s in enumerate(stations)
+                                            if example and s['id'] == example['station_id']), 0),
                                 format_func=lambda s: f"{s['name']} · {s['id']}")
         st.caption(f"Records: {selected['first']:%d %b %Y, %H:%M} – {selected['last']:%d %b %Y, %H:%M} SGT. Gaps may occur within this range.")
         if demo:
@@ -77,6 +83,8 @@ def main():
         earliest = max(selected['first'].date(), datetime(2017, 1, 1).date())
         latest = min(selected['last'].date(), datetime(2024, 12, 31).date())
         default = min(selected['first'] + timedelta(minutes=60), selected['last'])
+        if example and selected['id'] == example['station_id']:
+            default = datetime.fromisoformat(example['prediction_time']).astimezone(SG)
         with st.form('rainfall_prediction'):
             date = st.date_input('Prediction date', value=default.date(), min_value=earliest,
                                  max_value=latest, key=f"date_{selected['id']}")
@@ -119,9 +127,13 @@ def main():
             st.caption(f"Issued: {when:%d %b %Y, %H:%M} SGT · End: {end:%d %b %Y, %H:%M} SGT")
             st.caption(f"Target readings: {(when+timedelta(minutes=5)):%H:%M} through {end:%H:%M} at five-minute intervals. Equality to the threshold does not count as exceedance.")
             st.subheader('Recent rainfall history')
+            # Explicit bounds also handle the all-zero case without a negative auto-domain.
+            rainfall_max = max(point['rainfall'] for point in result['history'])
+            rainfall_upper = rainfall_max * 1.1 if rainfall_max > 0 else 1.
             chart = (alt.Chart(pd.DataFrame(result['history'])).mark_line(point=True, color='#147981')
                      .encode(x=alt.X('minutes:Q', title='Minutes before prediction', axis=alt.Axis(values=[-60,-45,-30,-15,-5])),
-                             y=alt.Y('rainfall:Q', title='Five-minute rainfall (mm)', scale=alt.Scale(zero=True)),
+                             y=alt.Y('rainfall:Q', title='Five-minute rainfall (mm)',
+                                     scale=alt.Scale(domain=[0, rainfall_upper], nice=False)),
                              tooltip=[alt.Tooltip('time:N', title='Time (SGT)'), alt.Tooltip('rainfall:Q', title='Rainfall (mm)')])
                      .properties(height=235))
             st.altair_chart(chart, width='stretch')

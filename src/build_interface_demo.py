@@ -70,6 +70,11 @@ def main():
             'source_rows': len(rows), 'duplicate_rows_removed': stats['extras'],
             'rows': sum(r.rows for r in coverage), 'coverage': [r.asDict() for r in coverage]
         }
+        manifest['example'] = {
+            'station_id': 'S50', 'prediction_time': '2024-01-01T13:50:00+08:00',
+            'threshold_mm': 5.,
+            'selection_note': 'Deliberately selected wet-weather illustration; not representative of model performance.'
+        }
         (output/'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
         print(json.dumps(manifest, indent=2))
     finally:

@@ -40,8 +40,9 @@ Open http://localhost:8501. Spark and the model are cached; the station catalog
 is cached for ten minutes. The app identifies demonstration data and shows its
 stations, dates and prediction/verification bounds. See [dataset provenance](../data/demo/README.md).
 This subset is not used to calculate the report's metrics and is not representative
-for evaluation. Try S33, 1 January 2024 at 01:00 SGT, threshold 5 mm: the saved GBT
-displays 3.4%, with 0 mm subsequently observed. Only supplied observations can be queried.
+for evaluation. The selected wet-weather default is S50, 1 January 2024 at
+13:50 SGT, threshold 5 mm: the saved GBT displays 67.9%. This deliberately chosen
+example is not representative of overall model performance. Only supplied observations can be queried.
 
 The default is always the bundled demo. To use full data, set the variable below
 explicitly, even when the data is already in `data/processed/`. Restart the app
@@ -190,6 +191,8 @@ Do not launch the Spark web app on the login node.
 - The model probability is vector element 1, displayed as a percentage rounded
   to one decimal place. Historical verification is a separate user-triggered read
   requiring all six future slots. Missing future data does not prevent inference.
+- The history chart has an explicit zero lower bound. All-zero windows use a
+  0–1 mm scale; wet windows use an upper bound just above their largest reading.
 
 This is retrospective replay, not live forecasting. Earlier years were used in
 training/validation; users should not interpret those queries as held-out results.
