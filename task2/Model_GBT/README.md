@@ -14,7 +14,7 @@ GBT-05 is the selected model: 40 boosting iterations, maximum depth 5, step size
 | `notebooks/test_gbt_final.ipynb` | Self-contained evaluation of the frozen GBT-05 model |
 | `results/` | Small CSV summaries, report figures and captions |
 | `results/make_report_figures.py` | Figure generation from completed test artifacts |
-| `outputs/` | Local experiment manifests, Spark models and predictions; excluded from Git |
+| `outputs/` | Selected GBT-05 model and small run records are committed; other experiment outputs remain ignored |
 
 The initial notebook records a 20-iteration, depth-4 model. Its feature importance and reliability results describe that experiment. Use the selected run's artifacts for GBT-05 reporting. The tuning record preserves the historical experiment; its original remote helper script is unavailable.
 
@@ -47,7 +47,7 @@ The training helper's optional `evaluate_test=True` path requires full training 
 2. Set `MODEL_ROOT` if automatic discovery cannot locate `Model_GBT/outputs/tuning_stage1/`. Set `RUN_ROOT` to an exact saved run directory if multiple matching models exist.
 3. Keep the decision cutoff fixed before testing and run the cells in order.
 
-The notebook selects a unique completed model with 40 iterations, depth 5 and step size 0.1. It reads the dataset path from that run's manifest and requires `model/` and `metrics.csv`. The original dataset path must be accessible in the execution environment. Models and large datasets are excluded from Git; a fresh clone alone cannot run this evaluation.
+The notebook selects a unique completed model with 40 iterations, depth 5 and step size 0.1. It reads the dataset path from that run's manifest and requires `model/` and `metrics.csv`. The original dataset path must be accessible in the execution environment. The selected GBT-05 `model/`, training manifest, validation summaries and final-test manifest and CSV summaries are committed under `outputs/tuning_stage1/GBT-05/`. Other experiments and full prediction Parquet files remain local. The prepared dataset is not included, so a fresh clone still requires access to the dataset path recorded in the manifest to run evaluation.
 
 The default Spark session uses four cores, a 16 GB driver heap and the Asia/Singapore timezone. Allocate additional memory for Python and Spark overhead. The complete test split is scored without sampling or retraining. Each execution creates `test_evaluation/<UTC timestamp>/` within the selected run.
 
