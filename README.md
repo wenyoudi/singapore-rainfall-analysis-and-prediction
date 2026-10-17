@@ -18,6 +18,7 @@ observations and scores the saved GBT model. No retraining is needed.
 | `task2/Model_GBT/` | GBT code, notebooks, trained pipeline and results |
 | `outputs/task2/` | Saved LR/RF models, individual results and comparison table |
 | `docs/` | Detailed execution instructions |
+| `data/demo/` | Real cleaned observations for the interface demo; not an evaluation dataset |
 | `tests/` | Small synthetic Spark tests and checks on saved Task 1 summaries/models |
 
 ## Data and common prediction definition
@@ -25,8 +26,9 @@ observations and scores the saved GBT model. No retraining is needed.
 Download the eight annual CSVs from
 [Historical Rainfall across Singapore](https://data.gov.sg/collections/2279/view).
 Place them at `data/raw/HistoricalRainfallacrossSingapore2017.csv` through
-`HistoricalRainfallacrossSingapore2024.csv`. Raw data, cleaned Parquet and the
-large prepared modelling dataset are excluded from Git.
+`HistoricalRainfallacrossSingapore2024.csv`. Full raw data, full cleaned Parquet and
+the large prepared modelling dataset are excluded from Git. A small real cleaned
+subset is included in `data/demo/` solely to demonstrate the interface.
 
 The authoritative preparation implementation is `src/task2_prepare.py`, originally
 used for LR. All three reported models used its shared prepared dataset:
@@ -219,23 +221,54 @@ training and test output, rather than a synthetic training test suite.
 Individual model branches remain intact. This main integration preserves Task 1,
 all three trained models, original run metadata and shared comparison outputs.
 Still to complete: final report/AI declaration and the group submission package.
-The interface has been checked locally; the Vanda web-app job remains unverified. Do not claim the project
-is submission-ready solely because the branches have been merged.
+The interface has been checked locally; the user has also confirmed Vanda server
+startup. Full remote inference has not been independently verified in this
+revision. Do not claim submission readiness solely because branches were merged.
 
 ## Interactive prediction interface
 
-Use the existing GBT model through a simple historical Streamlit dashboard.
-See [launch instructions and architecture](docs/prediction_interface.md) for the
-cleaned-data connection, separate environment, Vanda PBS job and SSH tunnel.
+Use the existing GBT model through a historical Streamlit dashboard. A fresh
+checkout includes a demonstration dataset, so no Vanda account, raw-data download
+or retraining is needed for this quick start. Install Python 3.11 and Java 11 or
+17 first. Windows users should run these commands in WSL2 (native Windows is not
+supported by the reused preparation module).
 
 ```bash
 python3.11 -m venv .venv-interface
 .venv-interface/bin/python -m pip install -r requirements-interface.txt
+unset RAINFALL_DATA_ROOT
 SPARK_LOCAL_IP=127.0.0.1 .venv-interface/bin/python -m streamlit run streamlit_app.py \
   --server.address 127.0.0.1 --browser.gatherUsageStats false
 ```
 
-Open http://localhost:8501. Requires Java and cleaned Parquet under `data/processed`
-or `RAINFALL_DATA_ROOT`. The app never trains a model; supported thresholds are
-0, 1, 5 and 10 mm. Optional subsequent rainfall is labelled as historical
-verification and never enters the forecast features.
+Open http://localhost:8501. The bundled **demonstration data** contains 1,728 real
+cleaned five-minute observations, covering **1 January 2024 00:00 through
+2 January 2024 23:55 SGT**, with 576 readings at each station:
+
+| Station | Name |
+| --- | --- |
+| S24 | Upper Changi Road North |
+| S33 | Jurong Pier Road |
+| S50 | Clementi Road |
+
+Predictions are available from 1 January 01:00 through 2 January 23:55; historical
+verification is available through 2 January 23:25. Try S33, 1 January 2024 at
+01:00 SGT, threshold 5 mm: the saved GBT displays 3.4%, with 0 mm subsequently
+observed. These values are calculated by the model, not hardcoded in the app.
+
+**The subset is for interface demonstration only. It is not the evaluation
+dataset and does not replace the reported full experimental cohorts or metrics.**
+It is not representative enough for performance assessment. Source and cleaning
+provenance are recorded in [data/demo/README.md](data/demo/README.md).
+
+For full station/date coverage, download the public annual CSVs, run our existing
+cleaning code and set `RAINFALL_DATA_ROOT` to the resulting Parquet root. Follow
+the [complete full-data workflow](docs/prediction_interface.md#connect-the-full-public-dataset)
+for exact commands that preserve the committed experiment summaries. The default
+is always `data/demo/`; `data/processed/` is used only when explicitly configured.
+The Vanda PBS job already configures your full cleaned data explicitly.
+
+The app never trains a model; supported thresholds are 0, 1, 5 and 10 mm.
+Optional subsequent rainfall is labelled as historical verification and never
+enters the forecast features. See [the interface guide](docs/prediction_interface.md)
+for architecture, tests, Vanda launch and SSH tunnelling.

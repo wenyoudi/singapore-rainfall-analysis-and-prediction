@@ -34,7 +34,8 @@ def main():
     st.caption('SINGAPORE RAINFALL · DSA5208')
     st.title('A closer look at the next 30 minutes')
     st.write('Select a station and historical time to estimate the chance of rainfall exceeding your threshold.')
-    data_root = os.environ.get('RAINFALL_DATA_ROOT', str(ROOT/'data/processed'))
+    data_root = os.environ.get('RAINFALL_DATA_ROOT', str(ROOT/'data/demo'))
+    demo = Path(data_root).expanduser().resolve() == (ROOT/'data/demo').resolve()
     model_name = os.environ.get('RAINFALL_MODEL', 'GBT').upper()
     master = os.environ.get('RAINFALL_SPARK_MASTER', 'local[2]')
     try:
@@ -53,6 +54,13 @@ def main():
             st.exception(sys.exc_info()[1])
         return
 
+    if demo:
+        first = min(s['first'] for s in stations)
+        last = max(s['last'] for s in stations)
+        st.info(f'Demonstration data · {len(stations)} stations ({", ".join(s["id"] for s in stations)}) · '
+                f'{first:%d %b %Y} – {last:%d %b %Y} (SGT). '
+                'Real cleaned observations for trying the interface, not the dataset used to evaluate the models. '
+                'See the README for full 2017–2024 data and connection instructions.')
     st.caption(f'{model_name} saved model · historical replay · all times in Singapore time (UTC+8)')
     left, right = st.columns([1, 1.5], gap='large')
     with left:
@@ -60,7 +68,12 @@ def main():
         # Outside the form so changing station updates its date range immediately.
         selected = st.selectbox('Monitoring station', stations,
                                 format_func=lambda s: f"{s['name']} · {s['id']}")
-        st.caption(f"Records: {selected['first']:%d %b %Y} – {selected['last']:%d %b %Y}. Gaps may occur within this range.")
+        st.caption(f"Records: {selected['first']:%d %b %Y, %H:%M} – {selected['last']:%d %b %Y, %H:%M} SGT. Gaps may occur within this range.")
+        if demo:
+            first_prediction = selected['first'] + timedelta(minutes=60)
+            last_verified = selected['last'] - timedelta(minutes=30)
+            st.caption(f'Demo predictions start at {first_prediction:%d %b, %H:%M}. '
+                       f'Historical verification is available through {last_verified:%d %b, %H:%M} SGT.')
         earliest = max(selected['first'].date(), datetime(2017, 1, 1).date())
         latest = min(selected['last'].date(), datetime(2024, 12, 31).date())
         default = min(selected['first'] + timedelta(minutes=60), selected['last'])
@@ -127,6 +140,8 @@ def main():
                         st.warning(str(exc))
     st.divider()
     st.caption('Academic historical demonstration, not a live weather forecast. Probability estimates can be poorly calibrated, especially for rare heavy rainfall. Earlier years include model training/validation data; only 2024 was held out for testing.')
+    st.caption('Source: NEA [Historical Rainfall across Singapore](https://data.gov.sg/collections/2279/view), '
+               'made available under the [Singapore Open Data Licence](https://data.gov.sg/open-data-licence).')
 
 
 if __name__ == '__main__':

@@ -25,3 +25,6 @@ outputs/random_forest/
 
 # Local Streamlit interface environment
 .venv-interface/
+
+# Isolated full-data cleaning workspace (preserves committed experiment summaries)
+.local-cleaning/

@@ -1,0 +1,47 @@
+{
+  "purpose": "Interface demonstration only; not a training or evaluation dataset.",
+  "source": "NEA Historical Rainfall across Singapore (2024)",
+  "source_url": "https://data.gov.sg/collections/2279/view",
+  "licence_url": "https://data.gov.sg/open-data-licence",
+  "source_file": "HistoricalRainfallacrossSingapore2024.csv",
+  "selected_source_rows_sha256": "011d474bbe2afa5ae1e39a300fab952cb7da87d8e30a261f6ae2adb9a32e9e2d",
+  "selection": {
+    "station_ids": [
+      "S24",
+      "S33",
+      "S50"
+    ],
+    "start_sgt": "2024-01-01",
+    "end_exclusive_sgt": "2024-01-03"
+  },
+  "cleaning": "data_cleaning.prepare_records + deduplicate_records; existing global station-name mapping",
+  "source_rows": 1728,
+  "duplicate_rows_removed": 0,
+  "rows": 1728,
+  "coverage": [
+    {
+      "station_id": "S24",
+      "station_name": "Upper Changi Road North",
+      "rows": 576,
+      "first_sgt": "2024-01-01 00:00:00",
+      "last_sgt": "2024-01-02 23:55:00",
+      "wet_readings": 67
+    },
+    {
+      "station_id": "S33",
+      "station_name": "Jurong Pier Road",
+      "rows": 576,
+      "first_sgt": "2024-01-01 00:00:00",
+      "last_sgt": "2024-01-02 23:55:00",
+      "wet_readings": 14
+    },
+    {
+      "station_id": "S50",
+      "station_name": "Clementi Road",
+      "rows": 576,
+      "first_sgt": "2024-01-01 00:00:00",
+      "last_sgt": "2024-01-02 23:55:00",
+      "wet_readings": 27
+    }
+  ]
+}
