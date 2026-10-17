@@ -102,7 +102,10 @@ class RainfallPredictor:
         return sorted([{'id': r.station_id, 'name': names.get(r.station_id, r.station_id),
                         'first': datetime.fromtimestamp(r.first, SG),
                         'last': datetime.fromtimestamp(r.last, SG)}
-                       for r in rows if r.station_id], key=lambda r: r['id'])
+                       for r in rows if r.station_id],
+                      key=lambda r: (0, int(r['id'][1:]), r['id'])
+                      if r['id'].startswith('S') and r['id'][1:].isdigit()
+                      else (1, 0, r['id']))
 
     def window(self, station, start, end):
         with self.lock:
