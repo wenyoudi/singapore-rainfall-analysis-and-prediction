@@ -1,0 +1,65 @@
+{
+  "status": "complete",
+  "dataset_root": "/scratch/e1496655/task2/final-1458499.stdct-mgmt-02/prepared",
+  "dataset_format": "shared_prepared_parquet",
+  "thresholds_mm": [
+    0.0,
+    1.0,
+    5.0,
+    10.0
+  ],
+  "spark_version": "3.5.6",
+  "started_utc": "2026-10-15T10:14:04.641307+00:00",
+  "train_fraction": 0.02,
+  "validation_fraction": 0.1,
+  "seed": 5208,
+  "max_iter": 40,
+  "max_depth": 5,
+  "step_size": 0.1,
+  "features": [
+    "station_index",
+    "hour",
+    "month",
+    "rainfall_previous_5m",
+    "rainfall_previous_30m",
+    "rainfall_previous_60m",
+    "threshold_mm"
+  ],
+  "evaluate_test": false,
+  "class_weighting": "none",
+  "sampling": "station/prediction_time hash, natural class distribution",
+  "auc_num_bins": 1000,
+  "calibration": "not fitted; reliability bins exported",
+  "training_balance": [
+    {
+      "threshold_mm": 1.0,
+      "samples": 680053,
+      "positives": 15931.0
+    },
+    {
+      "threshold_mm": 10.0,
+      "samples": 680053,
+      "positives": 2655.0
+    },
+    {
+      "threshold_mm": 5.0,
+      "samples": 680053,
+      "positives": 5509.0
+    },
+    {
+      "threshold_mm": 0.0,
+      "samples": 680053,
+      "positives": 40950.0
+    }
+  ],
+  "max_bins": 128,
+  "feature_importance": {
+    "station_index": 0.04860010596122394,
+    "hour": 0.06663898767292255,
+    "month": 0.015383663686659776,
+    "rainfall_previous_5m": 0.2632326288868486,
+    "rainfall_previous_30m": 0.1636635637775529,
+    "rainfall_previous_60m": 0.10944754192938431,
+    "threshold_mm": 0.3330335080854079
+  }
+}
