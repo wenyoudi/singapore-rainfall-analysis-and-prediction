@@ -9,7 +9,7 @@ sys.path.insert(0, str(ROOT/'src'))
 import altair as alt
 import pandas as pd
 import streamlit as st
-from rainfall_inference import InputError, RainfallPredictor, SG
+from rainfall_inference import InputError, RainfallPredictor, SG, THRESHOLDS
 
 st.set_page_config(page_title='Singapore Rainfall | Prediction', page_icon='🌧️', layout='wide')
 st.markdown('''<style>
@@ -69,7 +69,8 @@ def main():
                                  max_value=latest, key=f"date_{selected['id']}")
             clock = st.time_input('Prediction time (SGT)', value=time(default.hour, default.minute), step=300,
                                   help='Use a five-minute timestamp with twelve complete preceding readings.')
-            threshold = st.number_input('Rainfall threshold (mm)', min_value=0., max_value=10., value=5., step=1.)
+            threshold = st.selectbox('Rainfall threshold (mm)', THRESHOLDS, index=2,
+                                     format_func=lambda value: f'{value:g} mm')
             st.caption('Supported thresholds: 0, 1, 5 and 10 mm. Other thresholds were not evaluated.')
             submitted = st.form_submit_button('Predict Rainfall', type='primary', width='stretch')
         # Clear stale results whenever station changes, even before form submission.

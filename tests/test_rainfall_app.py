@@ -33,8 +33,11 @@ def test_ui_probability_history_and_validation(spark, tmp_path, monkeypatch):
     assert any('S50' in x.value and 'more than 5 mm' in x.value for x in at.markdown)
     at.button[1].click().run()
     assert not at.exception and len(at.metric) == 2
-    at.number_input[0].set_value(2.).run()
+    assert at.selectbox[1].options == ['0 mm', '1 mm', '5 mm', '10 mm']
+    at.selectbox[1].select(10.).run()
     at.button[0].click().run()
     assert not at.exception
-    assert any('Supported rainfall thresholds' in x.value for x in at.error)
-    assert not at.metric  # Invalid submission must clear the previous result.
+    expected_ten = RainfallPredictor(tmp_path).predict('S50', WHEN, 10.)['probability']
+    assert at.metric[0].value == f'{expected_ten:.1%}'
+    assert any('more than 10 mm' in x.value for x in at.markdown)
+    assert not at.error

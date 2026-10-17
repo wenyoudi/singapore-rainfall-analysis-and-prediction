@@ -99,8 +99,8 @@ Spark web app on the login node.
   the existing station-name mapping. The dropdown supports typing to search.
 - Timestamp: Singapore time, 2017–2024, on the exact five-minute grid. Displayed
   record ranges do not guarantee uninterrupted coverage; gaps produce clear errors.
-- Threshold: numeric entry restricted to the four evaluated values 0, 1, 5, 10 mm.
-  Other values are rejected even though the pipeline can mathematically score them.
+- Threshold dropdown: the four evaluated values 0, 1, 5, 10 mm, defaulting to 5 mm.
+  Other values cannot be selected and are also rejected by the inference module.
 - The selected time requires an observation at t and all twelve readings t−60,
   t−55, …, t−5. The observation at t is excluded from predictor values, exactly as
   in training. No rounding or missing-to-zero substitution is applied.
