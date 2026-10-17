@@ -1,0 +1,31 @@
+#!/bin/bash
+#PBS -N rainfall_task2_train
+#PBS -l select=1:ncpus=8:mem=32gb
+#PBS -l walltime=12:00:00
+#PBS -j oe
+set -euo pipefail
+: "${PBS_JOBID:?Submit through PBS, never run on the login node}"
+cd "${PBS_O_WORKDIR:?Submit from the repository root}"
+module load Spark/3.3.1-foss-2022a
+export PYSPARK_PYTHON="$(command -v python3)"
+export PYSPARK_DRIVER_PYTHON="$PYSPARK_PYTHON"
+export SPARK_LOCAL_IP=127.0.0.1
+"$PYSPARK_PYTHON" -c 'import sys, pyspark; assert sys.version_info[:2] == (3, 10); assert pyspark.__version__ == "3.3.1"'
+java_version="$(java -version 2>&1)"
+[[ "$java_version" == *'version "11.'* ]]
+module list
+printf '%s\n' "$java_version"
+qstat -f "$PBS_JOBID" || true
+task2_scratch="/scratch/$(id -un)"
+export SPARK_LOCAL_DIRS="${task2_scratch}/task2/train-spill-${PBS_JOBID}"
+mkdir -p "$SPARK_LOCAL_DIRS"
+# Tiny automatic guards run inside the same allocation; no extra queue cycle.
+"$PYSPARK_PYTHON" -m pytest -q tests/test_task2_paths.py tests/test_task2_prepare.py tests/test_task2_train.py
+spark-submit --master 'local[8]' --driver-memory 24g \
+    src/task2_train.py \
+    --input-root "${INPUT_ROOT:-/scratch/e0969984/singapore-rainfall-analysis-and-prediction/data/processed}" \
+    --output "${OUTPUT_PATH:-${task2_scratch}/task2/final-${PBS_JOBID}}"
+
+# Export compact review artifacts without another Spark action.
+"$PYSPARK_PYTHON" src/task2_export_results.py \
+    --run-dir "${OUTPUT_PATH:-${task2_scratch}/task2/final-${PBS_JOBID}}"

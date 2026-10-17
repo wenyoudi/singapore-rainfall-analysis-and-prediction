@@ -1,6 +1,23 @@
 # Singapore Rainfall Analysis and Prediction
 
-This repository currently implements preprocessing and **Task 1** for the 2017-2024 five-minute rainfall datasets. It includes Spark profiling, cleaning, validation, EDA summaries, and local figure generation. Task 2 is not implemented by this revision.
+This repository currently implements preprocessing and **Task 1** for the 2017-2024 five-minute rainfall datasets. It includes Spark profiling, cleaning, validation, EDA summaries, and local figure generation. Task 2 now also includes a trained multi-threshold Logistic Regression baseline.
+
+## Task 2: Logistic Regression baseline
+
+Task 2 scripts detect the executing Vanda account for output and temporary paths.
+Run from your own checkout; set `INPUT_ROOT` in the PBS submission if the default
+shared cleaned data are not accessible. See the guides below for examples.
+
+- [Preparation and window definitions](docs/task2_preparation.md)
+- [Training and evaluation instructions](docs/task2_training.md)
+- [Completed Vanda run, model and comparison contract](outputs/task2/logistic_regression/1458499/README.md)
+- [Compact test results](outputs/task2/logistic_regression/1458499/review/task2_summary.md)
+
+Job 1458499 completed with 28 passing preflight tests and scheduler exit status 0.
+Training uses 2017-2022, validation 2023 and testing 2024, with thresholds 0, 1, 5
+and 10 mm. The selected model and original compact result JSON files are included;
+large input/prepared Parquet datasets remain on Vanda. The station/time/history
+lookup interface is still outstanding; the saved model accepts prepared features.
 
 ## Data and environments
 
