@@ -43,11 +43,5 @@
       "last_sgt": "2024-01-02 23:55:00",
       "wet_readings": 27
     }
-  ],
-  "example": {
-    "station_id": "S50",
-    "prediction_time": "2024-01-01T13:50:00+08:00",
-    "threshold_mm": 5.0,
-    "selection_note": "Deliberately selected wet-weather illustration; not representative of model performance."
-  }
+  ]
 }

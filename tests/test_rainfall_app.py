@@ -27,6 +27,7 @@ def test_ui_probability_history_and_validation(spark, tmp_path, monkeypatch):
     expected = RainfallPredictor(tmp_path).predict('S50', WHEN, 5.)['probability']
     at = AppTest.from_file(str(ROOT/'streamlit_app.py'), default_timeout=90).run()
     assert not at.exception
+    at.selectbox[1].select(5.).run()
     at.button[0].click().run()
     assert not at.exception
     assert at.metric[0].value == f'{expected:.1%}'
@@ -57,20 +58,26 @@ def test_bundled_demo_default_real_model_and_coverage(spark, monkeypatch):
     assert predictor.observations.count() == manifest['rows'] == 1728
     assert [s['id'] for s in predictor.stations()] == ['S24', 'S33', 'S50']
     assert predictor.observations.select('station_id', 'prediction_time').distinct().count() == 1728
-    when = datetime.fromisoformat(manifest['example']['prediction_time'])
+    when = datetime(2024, 1, 1, 1, tzinfo=SG)
     for threshold in [0., 1., 5., 10.]:
         reference = prepare_features(predictor.observations, threshold).where(
-            (F.col('station_id') == 'S50') & (F.col('prediction_time') == F.lit(when)))
+            (F.col('station_id') == 'S24') & (F.col('prediction_time') == F.lit(when)))
         expected = predictor.model.transform(reference).select(vector_to_array('probability')[1]).first()[0]
-        actual = predictor.predict('S50', when, threshold)['probability']
+        actual = predictor.predict('S24', when, threshold)['probability']
         assert actual == pytest.approx(expected, abs=1e-12)
-        if threshold == 5.:
+        if threshold == 0.:
             default_probability = expected
-            assert default_probability > .5
+    assert predictor.verify('S50', when.replace(hour=13, minute=50), 5.)['total_mm'] == pytest.approx(.4)
+    wet_time = when.replace(hour=14, minute=10)
+    assert predictor.verify('S24', wet_time, 5.)['total_mm'] == pytest.approx(19.6)
+    assert predictor.predict('S24', wet_time, 5.)['probability'] == pytest.approx(.5488267034837925)
     at = AppTest.from_file(str(ROOT/'streamlit_app.py'), default_timeout=90).run()
     assert not at.exception
     assert any('Demonstration data' in x.value and 'not the dataset used to evaluate' in x.value for x in at.info)
     assert len(at.selectbox[0].options) == 3
+    assert at.selectbox[0].value['id'] == 'S24'
+    assert at.selectbox[1].value == 0.
+    assert at.time_input[0].value.hour == 1 and at.time_input[0].value.minute == 0
     assert at.date_input[0].min.isoformat() == '2024-01-01'
     assert at.date_input[0].max.isoformat() == '2024-01-02'
     at.button[0].click().run()
@@ -84,7 +91,7 @@ def test_bundled_demo_default_real_model_and_coverage(spark, monkeypatch):
     at.date_input[0].set_value(datetime(2024, 1, 2).date()).run()
     at.button[0].click().run()
     assert not at.exception
-    expected = predictor.predict('S33', datetime(2024, 1, 2, 1, tzinfo=SG), 5.)['probability']
+    expected = predictor.predict('S33', datetime(2024, 1, 2, 1, tzinfo=SG), 0.)['probability']
     assert at.metric[0].value == f'{expected:.1%}'
     assert any('S33' in x.value for x in at.markdown)
     # A dry real-data window must still have a non-degenerate, non-negative axis.

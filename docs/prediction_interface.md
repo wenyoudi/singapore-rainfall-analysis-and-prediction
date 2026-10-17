@@ -40,9 +40,14 @@ Open http://localhost:8501. Spark and the model are cached; the station catalog
 is cached for ten minutes. The app identifies demonstration data and shows its
 stations, dates and prediction/verification bounds. See [dataset provenance](../data/demo/README.md).
 This subset is not used to calculate the report's metrics and is not representative
-for evaluation. The selected wet-weather default is S50, 1 January 2024 at
-13:50 SGT, threshold 5 mm: the saved GBT displays 67.9%. This deliberately chosen
-example is not representative of overall model performance. Only supplied observations can be queried.
+for evaluation. Input defaults use the first station and threshold: S24,
+1 January 2024 at 01:00 SGT (the first time with sufficient history), and 0 mm.
+Only supplied observations can be queried.
+
+Optional wet-weather example: S24 at 14:10 SGT on 1 January, threshold 5 mm,
+predicts 54.9%; the observed subsequent total is 19.60 mm. The previous S50
+example at 13:50 predicts 67.9% but observes only 0.40 mm, so the >5 mm event
+does not occur. Neither example should be used to infer overall model quality.
 
 The default is always the bundled demo. To use full data, set the variable below
 explicitly, even when the data is already in `data/processed/`. Restart the app
@@ -179,7 +184,7 @@ Do not launch the Spark web app on the login node.
   the existing station-name mapping. The dropdown supports typing to search.
 - Timestamp: Singapore time, 2017–2024, on the exact five-minute grid. Displayed
   record ranges do not guarantee uninterrupted coverage; gaps produce clear errors.
-- Threshold dropdown: the four evaluated values 0, 1, 5, 10 mm, defaulting to 5 mm.
+- Threshold dropdown: the four evaluated values 0, 1, 5, 10 mm, defaulting to the first option, 0 mm.
   Other values cannot be selected and are also rejected by the inference module.
 - The selected time requires an observation at t and all twelve readings t−60,
   t−55, …, t−5. The observation at t is excluded from predictor values, exactly as
