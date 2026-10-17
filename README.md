@@ -454,3 +454,10 @@ The Vanda summary CSVs were downloaded and checked locally, and all 17 figure pa
 ## Branch workflow
 
 Task 1 development belongs on `eda`. After validation, commit the changes there and merge `eda` into `main`; then merge `main` into `models` before starting Task 2. The existing branch is named `models` (plural). Do not rewrite shared history to relocate uncommitted work: when branches share the same commit, switching to `eda` preserves the working files. Local merges and publishing branches to the remote are separate operations.
+
+## Task 2 model comparison
+
+[Table 7: final test performance](outputs/task2/model_comparison/table_7.md) reports
+LR, RF and GBT metrics at each rainfall threshold, with experimental qualifications.
+Regenerate the table and CSV using `python src/task2_comparison_table.py`.
+This comparison branch leaves the individual model branches unchanged.
