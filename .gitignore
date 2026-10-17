@@ -19,3 +19,6 @@ spark-warehouse/
 # HPC logs
 *.o[0-9]*
 *.e[0-9]*
+
+# Local full Random Forest downloads; selected artifacts live on the model branch.
+outputs/random_forest/
