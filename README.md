@@ -5,9 +5,9 @@ DSA5208 group project using Singapore five-minute rainfall observations from
 rainfall at a station over the next 30 minutes exceeds a requested threshold.
 
 The repository includes preprocessing, analysis, three trained Spark pipelines,
-individual model results and the final test comparison. The station/time/threshold
-history-lookup command is still to be implemented; the saved pipelines currently
-accept prepared features. No retraining is needed to inspect the saved results.
+individual model results and the final test comparison. The Streamlit interface
+accepts station, historical time and rainfall threshold, retrieves historical
+observations and scores the saved GBT model. No retraining is needed.
 
 ## Repository structure
 
@@ -178,7 +178,7 @@ predictions = model.transform(prepared_features)
 `prepared_features` must contain station_id (string), hour/month (integer),
 rainfall_previous_5m/30m/60m (numeric) and threshold_mm (numeric). Do not use future
 rainfall to construct predictors. Keep the entire pipeline directory; it includes
-fitted encoding. The required three-input history lookup is not yet implemented.
+fitted encoding. The Streamlit interface below provides the station/time/threshold history lookup.
 
 ## Results and comparison
 
@@ -218,6 +218,24 @@ training and test output, rather than a synthetic training test suite.
 
 Individual model branches remain intact. This main integration preserves Task 1,
 all three trained models, original run metadata and shared comparison outputs.
-Still to complete: the station/time/threshold history-lookup interface, final
-report/AI declaration, and the group submission package. Do not claim the project
+Still to complete: final report/AI declaration and the group submission package.
+The interface has been checked locally; the Vanda web-app job remains unverified. Do not claim the project
 is submission-ready solely because the branches have been merged.
+
+## Interactive prediction interface
+
+Use the existing GBT model through a simple historical Streamlit dashboard.
+See [launch instructions and architecture](docs/prediction_interface.md) for the
+cleaned-data connection, separate environment, Vanda PBS job and SSH tunnel.
+
+```bash
+python3.11 -m venv .venv-interface
+.venv-interface/bin/python -m pip install -r requirements-interface.txt
+SPARK_LOCAL_IP=127.0.0.1 .venv-interface/bin/python -m streamlit run streamlit_app.py \
+  --server.address 127.0.0.1 --browser.gatherUsageStats false
+```
+
+Open http://localhost:8501. Requires Java and cleaned Parquet under `data/processed`
+or `RAINFALL_DATA_ROOT`. The app never trains a model; supported thresholds are
+0, 1, 5 and 10 mm. Optional subsequent rainfall is labelled as historical
+verification and never enters the forecast features.
