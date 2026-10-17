@@ -154,8 +154,9 @@ The final-test notebook loads the frozen selected model without retraining.
 See [GBT instructions](task2/Model_GBT/README.md) for the exact notebook setup,
 model path and recorded tuning commands. The original tuning helper is not
 available, so the tuning record is historical evidence, not an executable script.
-Some GBT figure-generation inputs remain in the remote run rather than Git;
-committed figures and test CSVs can be inspected directly.
+The frozen GBT-05 run includes the compact inputs needed to regenerate its
+report figures with `python task2/Model_GBT/results/make_report_figures.py`.
+Full prediction Parquet and the shared prepared dataset remain outside Git.
 
 ## Load the committed models
 
