@@ -1,0 +1,54 @@
+[
+  {
+    "threshold_mm": 0.0,
+    "n": 6335645,
+    "positives": 402998.0,
+    "prevalence": 0.06360804622102406,
+    "mean_probability": 0.03650038110445728,
+    "brier": 0.043470957021823124,
+    "log_loss": 0.16827966438824304,
+    "roc_auc": 0.8611357609282527,
+    "pr_auc": 0.5941904989389115,
+    "constant_baseline_probability": 0.06005883009358573,
+    "constant_baseline_brier": 0.0595746596120874
+  },
+  {
+    "threshold_mm": 1.0,
+    "n": 6335645,
+    "positives": 162858.0,
+    "prevalence": 0.02570503871350115,
+    "mean_probability": 0.021379940842561444,
+    "brier": 0.019710418893757447,
+    "log_loss": 0.08266985919999671,
+    "roc_auc": 0.8820179026553474,
+    "pr_auc": 0.45874880033856763,
+    "constant_baseline_probability": 0.023327189160327486,
+    "constant_baseline_brier": 0.025049943866736084
+  },
+  {
+    "threshold_mm": 5.0,
+    "n": 6335645,
+    "positives": 53092.0,
+    "prevalence": 0.008379888709042252,
+    "mean_probability": 0.020173033229124678,
+    "brier": 0.007650056492977921,
+    "log_loss": 0.041973431033708306,
+    "roc_auc": 0.8686865019607695,
+    "pr_auc": 0.21969781624152385,
+    "constant_baseline_probability": 0.008144227074885537,
+    "constant_baseline_brier": 0.008309721710672133
+  },
+  {
+    "threshold_mm": 10.0,
+    "n": 6335645,
+    "positives": 24252.0,
+    "prevalence": 0.0038278659868095513,
+    "mean_probability": 0.020173003488066985,
+    "brier": 0.004305101984407285,
+    "log_loss": 0.030451162657557655,
+    "roc_auc": 0.8707748317880804,
+    "pr_auc": 0.12000446062956767,
+    "constant_baseline_probability": 0.0038996213441013115,
+    "constant_baseline_brier": 0.0038132185776278784
+  }
+]

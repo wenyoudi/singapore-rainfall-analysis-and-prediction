@@ -1,0 +1,351 @@
+{
+  "status": "complete",
+  "model": "RandomForestClassifier",
+  "started_utc": "2026-10-15T07:58:05.753829+00:00",
+  "parameters": {
+    "prepared": "/scratch/e1496655/task2/final-1458499.stdct-mgmt-02/prepared",
+    "output": "/scratch/e0969984/task2/rf-1459817.stdct-mgmt-02",
+    "check_only": false,
+    "trees": 50,
+    "depths": [
+      5,
+      8
+    ],
+    "seed": 5208
+  },
+  "thresholds_mm": [
+    0.0,
+    1.0,
+    5.0,
+    10.0
+  ],
+  "shared_provenance": {
+    "path": "/scratch/e1496655/task2/final-1458499.stdct-mgmt-02/manifest.json",
+    "sha256": "471e9c53186b1e06403ae85c2eadddaeef78c25d8866d3a6bb03162751b1c9d1",
+    "pbs_job_id": "1458499.stdct-mgmt-02",
+    "preparation_sha256": "f5936d95318cf30f20a0263867b80ea4fe59cc93d33436373d9faab80bbfa2be"
+  },
+  "python": "3.10.4",
+  "pbs_job_id": "1459817.stdct-mgmt-02",
+  "auc_num_bins": 1000,
+  "selection": "minimum equal-threshold mean validation Brier; ties keep first",
+  "source_sha256": {
+    "task2_random_forest.py": "13fdc9d23ff99d0c30b681c55606d89aff214152b706fd3b4ba20aafac112877",
+    "task2_model_common.py": "bbf286748f9636c301b55db0ff422d05e3c8e10015c94bd4668a450a87cbc425"
+  },
+  "spark": "3.3.1",
+  "java": "11.0.18",
+  "spark_conf": {
+    "spark.driver.memory": "24g",
+    "spark.driver.extraJavaOptions": "-XX:+IgnoreUnrecognizedVMOptions --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/sun.nio.cs=ALL-UNNAMED --add-opens=java.base/sun.security.action=ALL-UNNAMED --add-opens=java.base/sun.util.calendar=ALL-UNNAMED --add-opens=java.security.jgss/sun.security.krb5=ALL-UNNAMED",
+    "spark.app.id": "local-1792051086463",
+    "spark.master": "local[8]",
+    "spark.driver.host": "localhost.localdomain",
+    "spark.executor.id": "driver",
+    "spark.sql.shuffle.partitions": "32",
+    "spark.app.name": "Task2RandomForest",
+    "spark.app.startTime": "1792051085802",
+    "spark.sql.session.timeZone": "Asia/Singapore",
+    "spark.rdd.compress": "True",
+    "spark.executor.extraJavaOptions": "-XX:+IgnoreUnrecognizedVMOptions --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/sun.nio.cs=ALL-UNNAMED --add-opens=java.base/sun.security.action=ALL-UNNAMED --add-opens=java.base/sun.util.calendar=ALL-UNNAMED --add-opens=java.security.jgss/sun.security.krb5=ALL-UNNAMED",
+    "spark.app.submitTime": "1792051084698",
+    "spark.serializer.objectStreamReset": "100",
+    "spark.submit.pyFiles": "",
+    "spark.submit.deployMode": "client",
+    "spark.driver.port": "33857"
+  },
+  "retained_counts": [
+    {
+      "split": "train",
+      "year": 2017,
+      "count": 4803912
+    },
+    {
+      "split": "train",
+      "year": 2018,
+      "count": 3973669
+    },
+    {
+      "split": "train",
+      "year": 2019,
+      "count": 4931059
+    },
+    {
+      "split": "train",
+      "year": 2020,
+      "count": 6229257
+    },
+    {
+      "split": "train",
+      "year": 2021,
+      "count": 6973560
+    },
+    {
+      "split": "train",
+      "year": 2022,
+      "count": 7069791
+    },
+    {
+      "split": "validation",
+      "year": 2023,
+      "count": 6683962
+    },
+    {
+      "split": "test",
+      "year": 2024,
+      "count": 6335645
+    }
+  ],
+  "training_rates": [
+    {
+      "threshold_mm": 1.0,
+      "n": 33981248,
+      "probability": 0.023327189160327486
+    },
+    {
+      "threshold_mm": 10.0,
+      "n": 33981248,
+      "probability": 0.0038996213441013115
+    },
+    {
+      "threshold_mm": 5.0,
+      "n": 33981248,
+      "probability": 0.008144227074885537
+    },
+    {
+      "threshold_mm": 0.0,
+      "n": 33981248,
+      "probability": 0.06005883009358573
+    }
+  ],
+  "validation_candidates": [
+    {
+      "max_depth": 5,
+      "num_trees": 50,
+      "macro_brier": 0.021656855207836733,
+      "metrics": [
+        {
+          "threshold_mm": 0.0,
+          "n": 6683962,
+          "positives": 445835.0,
+          "prevalence": 0.06670220447094104,
+          "mean_probability": 0.031549231120874134,
+          "brier": 0.051503744265436455,
+          "log_loss": 0.1906228565408697
+        },
+        {
+          "threshold_mm": 1.0,
+          "n": 6683962,
+          "positives": 175725.0,
+          "prevalence": 0.02629054444055786,
+          "mean_probability": 0.022160148236072496,
+          "brier": 0.02271423262405449,
+          "log_loss": 0.09391324888814313
+        },
+        {
+          "threshold_mm": 5.0,
+          "n": 6683962,
+          "positives": 58399.0,
+          "prevalence": 0.008737183125816693,
+          "mean_probability": 0.022102710747662013,
+          "brier": 0.008134888049051525,
+          "log_loss": 0.046593978698890065
+        },
+        {
+          "threshold_mm": 10.0,
+          "n": 6683962,
+          "positives": 27558.0,
+          "prevalence": 0.004123003691523082,
+          "mean_probability": 0.022102710747662013,
+          "brier": 0.004274555892804464,
+          "log_loss": 0.03372956659920262
+        }
+      ]
+    },
+    {
+      "max_depth": 8,
+      "num_trees": 50,
+      "macro_brier": 0.01942225786977382,
+      "metrics": [
+        {
+          "threshold_mm": 0.0,
+          "n": 6683962,
+          "positives": 445835.0,
+          "prevalence": 0.06670220447094104,
+          "mean_probability": 0.037075081772199564,
+          "brier": 0.045093933887595875,
+          "log_loss": 0.17280744795363484
+        },
+        {
+          "threshold_mm": 1.0,
+          "n": 6683962,
+          "positives": 175725.0,
+          "prevalence": 0.02629054444055786,
+          "mean_probability": 0.02165165214199131,
+          "brier": 0.020091168142095432,
+          "log_loss": 0.08352225515390668
+        },
+        {
+          "threshold_mm": 5.0,
+          "n": 6683962,
+          "positives": 58399.0,
+          "prevalence": 0.008737183125816693,
+          "mean_probability": 0.020373271985496693,
+          "brier": 0.007954228694511761,
+          "log_loss": 0.04298068156851918
+        },
+        {
+          "threshold_mm": 10.0,
+          "n": 6683962,
+          "positives": 27558.0,
+          "prevalence": 0.004123003691523082,
+          "mean_probability": 0.020373232250561903,
+          "brier": 0.004549700754892224,
+          "log_loss": 0.031273925383255546
+        }
+      ]
+    }
+  ],
+  "selected_depth": 8,
+  "num_trees": 50,
+  "validation_macro_brier": 0.01942225786977382,
+  "feature_importances": [
+    8.974427266138076e-06,
+    1.0361793118373305e-06,
+    2.3699773576485506e-07,
+    2.900951814332861e-07,
+    3.1283452950213727e-07,
+    1.1131554737026534e-06,
+    1.4749543793780072e-07,
+    1.2686687675225267e-06,
+    2.4490871881145094e-07,
+    1.6452211157243087e-06,
+    3.507086076538638e-06,
+    1.5085399078711275e-06,
+    1.520715253585273e-06,
+    1.6554394195199976e-06,
+    1.6017308709861628e-06,
+    1.3468898662586441e-06,
+    2.553771868740239e-06,
+    6.299626923500793e-06,
+    5.908192839891497e-06,
+    1.1114795512942539e-06,
+    9.248145905129145e-07,
+    1.7117464412408706e-06,
+    9.126660878791426e-07,
+    1.838020296300166e-06,
+    1.5609635787543394e-06,
+    1.4468464354688908e-06,
+    2.268939155092431e-06,
+    3.096570703016385e-06,
+    9.496259463588553e-07,
+    8.900175406424115e-07,
+    3.0965348600865496e-06,
+    6.496412340159904e-06,
+    2.9955556276748445e-06,
+    9.72766236854217e-07,
+    4.41770076825069e-06,
+    6.643107522399203e-07,
+    7.897104877667446e-07,
+    1.0066091758810832e-06,
+    2.702050825497798e-06,
+    1.779510508193507e-06,
+    2.964854088200319e-06,
+    2.4966603177402146e-06,
+    2.9868103877623373e-06,
+    4.6896075383597585e-07,
+    2.5611756939706815e-06,
+    6.573869397782368e-07,
+    3.066633112572895e-06,
+    9.726762958337859e-07,
+    2.9064454843269603e-07,
+    2.54185813074285e-07,
+    2.729723531175362e-06,
+    5.381656000611366e-07,
+    8.894758850206383e-07,
+    1.0111682065674095e-07,
+    2.4769053040938434e-07,
+    5.026185895744361e-07,
+    3.830979559021739e-06,
+    3.579692886644067e-06,
+    1.0245025046096245e-06,
+    1.1657787982074166e-06,
+    1.5426254549219037e-06,
+    7.438839056668133e-06,
+    2.707151361668932e-06,
+    1.4764338956742806e-06,
+    2.9052874833592834e-06,
+    5.07305552635201e-07,
+    1.2221174985869473e-06,
+    1.7165953638195874e-07,
+    1.0967739649160266e-06,
+    1.3801301213340328e-06,
+    2.630186643617802e-07,
+    2.4661844325966535e-06,
+    1.3981355263227968e-06,
+    1.0851523338377033e-06,
+    5.468386009802603e-07,
+    2.518790103757802e-06,
+    9.32167587874073e-06,
+    7.998087401352258e-07,
+    6.708157278012686e-06,
+    4.642482641542958e-06,
+    9.395445859125042e-07,
+    7.45064972782869e-06,
+    5.489167456662599e-06,
+    1.1798229704880521e-06,
+    3.4345527822854686e-07,
+    2.859328305047268e-06,
+    6.734069656036883e-07,
+    1.5871053666734323e-06,
+    0.0,
+    0.00015205927023776347,
+    0.0011026569283466173,
+    0.0019361069082539908,
+    9.677016156311668e-05,
+    0.0003738327180220623,
+    0.0030026282331549596,
+    0.0010803212960090304,
+    1.1272459457976044e-05,
+    9.959471381782665e-05,
+    0.0001063685880914136,
+    1.7713144058945648e-05,
+    0.0007003687324658997,
+    0.0002581402078334274,
+    0.0024330257153771006,
+    0.0002717775635757113,
+    8.03683046561005e-05,
+    2.7220549422123378e-05,
+    0.0003915383493862403,
+    3.486764640576812e-05,
+    0.0001347315085857849,
+    8.885909503364495e-05,
+    3.619450818241519e-05,
+    6.655583342382945e-05,
+    0.0007037126551826515,
+    0.0,
+    6.468446069092724e-05,
+    0.00022559373420083308,
+    0.00012104214233614404,
+    0.0011111654673132913,
+    0.0002656914453182121,
+    3.641458705671012e-05,
+    0.00014378857459098596,
+    1.9392164283418314e-05,
+    0.00012104521853009916,
+    0.000342813578951345,
+    0.00016528597195678173,
+    0.0008574457981907911,
+    0.0,
+    0.3583209048836943,
+    0.30822941672981635,
+    0.16068235962997776,
+    0.15590141491263393
+  ],
+  "test_monotonicity": {
+    "adjacent_pairs": 19006935,
+    "violating_pairs": 0,
+    "violation_fraction": 0.0
+  },
+  "finished_utc": "2026-10-15T08:53:34.785909+00:00"
+}

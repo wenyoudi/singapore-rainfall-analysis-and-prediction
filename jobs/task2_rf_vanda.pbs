@@ -1,0 +1,28 @@
+#!/bin/bash
+#PBS -N rainfall_rf
+#PBS -l select=1:ncpus=8:mem=32gb
+#PBS -l walltime=12:00:00
+#PBS -j oe
+set -euo pipefail
+: "${PBS_JOBID:?Submit using qsub from the repository root}"
+cd "${PBS_O_WORKDIR:?}"
+module load Spark/3.3.1-foss-2022a
+export PYSPARK_PYTHON="$(command -v python3)"
+export PYSPARK_DRIVER_PYTHON="$PYSPARK_PYTHON"
+export SPARK_LOCAL_IP=127.0.0.1
+"$PYSPARK_PYTHON" -c 'import sys,pyspark; assert sys.version_info[:2] == (3,10); assert pyspark.__version__ == "3.3.1"'
+java_version="$(java -version 2>&1)"
+[[ "$java_version" == *'version "11.'* ]]
+module list
+printf '%s\n' "$java_version"
+export SPARK_LOCAL_DIRS="/scratch/e0969984/task2/rf-spill-${PBS_JOBID}"
+mkdir -p "$SPARK_LOCAL_DIRS"
+qstat -f "$PBS_JOBID" || true
+args=(--prepared "${PREPARED_PATH:-/scratch/e1496655/task2/final-1458499.stdct-mgmt-02/prepared}"
+      --output "/scratch/e0969984/task2/rf-${PBS_JOBID}")
+case "${RF_MODE:-check}" in
+    check) args+=(--check-only) ;;
+    train) "$PYSPARK_PYTHON" -m pytest -q tests/test_task2_random_forest.py ;;
+    *) echo 'RF_MODE must be check or train'; exit 1 ;;
+esac
+spark-submit --master 'local[8]' --driver-memory 24g src/task2_random_forest.py "${args[@]}"
