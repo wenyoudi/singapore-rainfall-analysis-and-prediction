@@ -338,10 +338,8 @@ To try a prediction:
    **Verify against the historical outcome** and click **Show observed next
    30 minutes**. Verification is available through **2 January 23:25 SGT**.
 
-Defaults use the first station, earliest date, midnight and first threshold:
-S24, 1 January at 00:00 SGT, and 0 mm. In the demo, 1 January at midnight lacks
-the preceding hour; choose 01:00 or later that day, or 2 January at 00:00.
-The target uses readings at t+5 through t+30; equality to the threshold is
+Defaults use the first station and threshold: S24, 1 January at 01:00 SGT, and
+0 mm. The target uses readings at t+5 through t+30; equality to the threshold is
 not an exceedance. All displayed times are Singapore time (UTC+8).
 
 Two optional examples, both on 1 January 2024:

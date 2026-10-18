@@ -137,10 +137,11 @@ def main():
         st.subheader('Prediction inputs')
         earliest = max(selected['first'].date(), datetime(2017, 1, 1).date())
         latest = min(selected['last'].date(), datetime(2024, 12, 31).date())
+        default = min(selected['first'] + timedelta(minutes=60), selected['last'])
         with st.form('rainfall_prediction'):
-            date = st.date_input('Prediction date', value=earliest, min_value=earliest,
+            date = st.date_input('Prediction date', value=default.date(), min_value=earliest,
                                  max_value=latest, key=f"date_{selected['id']}")
-            clock = st.time_input('Prediction time (SGT)', value=time(0, 0), step=300,
+            clock = st.time_input('Prediction time (SGT)', value=time(default.hour, default.minute), step=300,
                                   help='Use a five-minute timestamp with twelve complete preceding readings.')
             threshold = st.selectbox('Rainfall threshold (mm)', THRESHOLDS, index=0,
                                      format_func=lambda value: f'{value:g} mm')

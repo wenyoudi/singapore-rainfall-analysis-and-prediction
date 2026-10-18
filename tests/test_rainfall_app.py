@@ -28,7 +28,6 @@ def test_ui_probability_history_and_validation(spark, tmp_path, monkeypatch):
     at = AppTest.from_file(str(ROOT/'streamlit_app.py'), default_timeout=90).run()
     assert not at.exception
     assert any('coordinates are unavailable' in x.value for x in at.info)
-    at.time_input[0].set_value(WHEN.time().replace(tzinfo=None)).run()
     at.selectbox[1].select(5.).run()
     at.button[0].click().run()
     assert not at.exception
@@ -84,7 +83,7 @@ def test_bundled_demo_default_real_model_and_coverage(spark, monkeypatch):
     assert len(at.selectbox[0].options) == 8
     assert at.selectbox[0].value == 'S24'
     assert at.selectbox[1].value == 0.
-    assert at.time_input[0].value.hour == 0 and at.time_input[0].value.minute == 0
+    assert at.time_input[0].value.hour == 1 and at.time_input[0].value.minute == 0
     import pyarrow as pa
     map_element = next(c for c in at.get('vega_lite_chart')
                        if json.loads(c.proto.spec).get('description', '').startswith('Singapore map'))
@@ -99,11 +98,6 @@ def test_bundled_demo_default_real_model_and_coverage(spark, monkeypatch):
     assert sum(a[0]*b[1]-b[0]*a[1] for a, b in zip(largest, largest[1:])) < 0
     assert at.date_input[0].min.isoformat() == '2024-01-01'
     assert at.date_input[0].max.isoformat() == '2024-01-02'
-    at.button[0].click().run()
-    assert not at.exception
-    assert any('Insufficient history' in x.value for x in at.error)
-    assert not at.metric
-    at.time_input[0].set_value(when.time().replace(tzinfo=None)).run()
     at.button[0].click().run()
     assert not at.exception
     assert at.metric[0].value == f'{default_probability:.1%}'
