@@ -182,6 +182,13 @@ Do not launch the Spark web app on the login node.
 
 - Station dropdown: IDs actually present in the connected Parquet, labelled using
   the existing station-name mapping. The dropdown supports typing to search.
+- Station map: click an ID-labelled point to select it; the dropdown and orange
+  map highlight stay synchronized. Changing station clears the preceding result
+  and refreshes the available date range. Only connected stations are shown.
+  Positions use the latest valid latitude/longitude pair recorded for each
+  station, without averaging different locations. Historical coordinates may
+  differ. Missing/invalid coordinates leave the station available in the dropdown.
+  If all coordinates are absent, the app explains why the map is unavailable.
 - Timestamp: Singapore time, 2017–2024, on the exact five-minute grid. Displayed
   record ranges do not guarantee uninterrupted coverage; gaps produce clear errors.
 - Threshold dropdown: the four evaluated values 0, 1, 5, 10 mm, defaulting to the first option, 0 mm.
@@ -214,6 +221,13 @@ is collected; full historical observations remain in Spark. Model and Spark
 resources use Streamlit's resource cache; the small station catalog uses its data
 cache. Data is assumed read-only; restart the app if the underlying files change.
 
+The map uses Altair's built-in selection events, with no new dependencies, map
+API keys or external tile requests. `data/geography/singapore_adm0.geojson` is the
+same boundary bundled for Task 1. Its [source metadata](../data/geography/singapore_boundary_source.json)
+records the geoBoundaries/URA-derived source and ODbL 1.0 licence. Polygon winding
+is adapted in memory for Vega; the original boundary file is unchanged. Restart
+the Streamlit process after updating inference code to refresh cached resources.
+
 Optional configuration: `RAINFALL_MODEL=RF` or `LR` uses the other committed
 pipelines. `RAINFALL_SPARK_MASTER` defaults to `local[2]` and
 `RAINFALL_DRIVER_MEMORY` to `4g`. Restart when changing resource configuration.
@@ -226,8 +240,11 @@ SPARK_LOCAL_IP=127.0.0.1 .venv-interface/bin/python -m pytest -q \
   tests/test_rainfall_interface.py tests/test_rainfall_app.py
 ```
 
-All 12 focused tests passed using Spark 3.5.6 and Python 3.11, including the
+All 13 focused tests passed using Spark 3.5.6 and Python 3.11, including the
 bundled real-data default launch, station/date changes and probability parity.
+Checks also cover coordinate-pair selection, numeric station sorting and missing
+coordinates. Map clicks and dropdown/highlight synchronization were verified in
+the local browser using real station locations and saved-model inference.
 Tests compare all four GBT probabilities to the original preparation/model path,
 check missing/off-grid/unsupported inputs, future-data exclusion and UI output
 using the actual committed model (no mocked probabilities).

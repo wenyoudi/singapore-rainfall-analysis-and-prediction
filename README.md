@@ -251,6 +251,12 @@ cleaned five-minute observations, covering **1 January 2024 00:00 through
 | S33 | Jurong Pier Road |
 | S50 | Clementi Road |
 
+Choose a station using the searchable dropdown or by clicking its labelled point
+on the Singapore map. Both controls stay synchronized; orange highlights the
+selected station. The demo shows its three stations, while connecting full data
+shows all available stations with recorded coordinates. The map uses a bundled
+boundary and needs no map API key or additional package.
+
 Predictions are available from 1 January 01:00 through 2 January 23:55; historical
 verification is available through 2 January 23:25. Defaults follow the first
 station and threshold options: S24, 1 January 2024 at 01:00 SGT (the first time

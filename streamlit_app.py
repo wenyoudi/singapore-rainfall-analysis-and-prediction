@@ -1,5 +1,6 @@
 """Historical Singapore rainfall prediction dashboard. Run with Streamlit."""
 from datetime import datetime, time, timedelta
+import json
 import os
 from pathlib import Path
 import sys
@@ -28,6 +29,57 @@ def engine(data_root, model_name, master):
 @st.cache_data(show_spinner='Finding available stations…', ttl=600)
 def catalog(data_root, model_name, master):
     return engine(data_root, model_name, master).stations()
+
+
+def choose_map_station():
+    """Apply a map click before the dropdown is recreated on the next rerun."""
+    points = st.session_state.get('station_map', {}).get('selection', {}).get('station_pick', [])
+    if points and points[0].get('id') in st.session_state.get('station_ids', []):
+        st.session_state['station_choice'] = points[0]['id']
+
+
+@st.cache_data
+def singapore_boundary():
+    features = json.loads((ROOT/'data/geography/singapore_adm0.geojson').read_text())['features']
+    # Vega expects clockwise exteriors, unlike the bundled RFC 7946 GeoJSON.
+    # Reverse ring order only in memory; leave the source geometry untouched.
+    for feature in features:
+        geometry = feature['geometry']
+        polygons = [geometry['coordinates']] if geometry['type'] == 'Polygon' else geometry['coordinates']
+        for polygon in polygons:
+            for index, ring in enumerate(polygon):
+                area = sum(a[0]*b[1] - b[0]*a[1] for a, b in zip(ring, ring[1:]))
+                if (area > 0) == (index == 0):
+                    ring.reverse()
+    return features
+
+
+def station_map(stations, selected_id):
+    mapped = [s for s in stations if s['latitude'] is not None and s['longitude'] is not None]
+    if not mapped:
+        st.info('Recorded station coordinates are unavailable in this dataset. Use the dropdown to select a station.')
+        return
+    land = alt.Chart(alt.Data(values=singapore_boundary())).mark_geoshape(
+        fill='#e8f0ed', stroke='#a2b9b1', strokeWidth=.8)
+    locations = alt.Chart(pd.DataFrame(mapped)).encode(longitude='longitude:Q', latitude='latitude:Q')
+    pick = alt.selection_point(name='station_pick', fields=['id'], on='click',
+                               toggle=False, clear=False, empty=False)
+    dots = locations.mark_circle(size=135, stroke='white', strokeWidth=1.5).encode(
+        color=alt.condition(alt.datum.id == selected_id, alt.value('#d95e35'), alt.value('#147981')),
+        tooltip=[alt.Tooltip('id:N', title='Station'), alt.Tooltip('name:N', title='Name'),
+                 alt.Tooltip('latitude:Q', title='Latitude', format='.4f'),
+                 alt.Tooltip('longitude:Q', title='Longitude', format='.4f')]
+    ).add_params(pick)
+    labels = locations.mark_text(dy=-13, fontSize=11, color='#29463e').encode(text='id:N')
+    chart = (alt.layer(land, dots, labels).project(type='mercator')
+             .properties(height=270, description='Singapore map with labelled monitoring stations. Click a station point to select it.')
+             .configure_view(stroke=None))
+    st.altair_chart(chart, key='station_map', on_select=choose_map_station,
+                    selection_mode='station_pick', width='stretch')
+    st.caption('Click a station point or use the dropdown. Orange marks your selection. '
+               'Locations use the latest valid coordinates recorded in the connected data; historical locations may differ.')
+    if len(mapped) < len(stations):
+        st.caption(f'{len(stations)-len(mapped)} stations have no valid coordinates and remain available in the dropdown.')
 
 
 def main():
@@ -62,19 +114,27 @@ def main():
                 'Real cleaned observations for trying the interface, not the dataset used to evaluate the models. '
                 'See the README for full 2017–2024 data and connection instructions.')
     st.caption(f'{model_name} saved model · historical replay · all times in Singapore time (UTC+8)')
-    left, right = st.columns([1, 1.5], gap='large')
-    with left:
-        st.subheader('Prediction inputs')
-        # Outside the form so changing station updates its date range immediately.
-        selected = st.selectbox('Monitoring station', stations,
-                                index=0,
-                                format_func=lambda s: f"{s['name']} · {s['id']}")
+    st.subheader('Choose a monitoring station')
+    by_id = {s['id']: s for s in stations}
+    st.session_state['station_ids'] = list(by_id)
+    if st.session_state.get('station_choice') not in by_id:
+        st.session_state['station_choice'] = stations[0]['id']
+    station_inputs, map_panel = st.columns([1, 2], gap='large')
+    with station_inputs:
+        station_id = st.selectbox('Monitoring station', list(by_id), key='station_choice',
+                                  format_func=lambda sid: f"{by_id[sid]['name']} · {sid}")
+        selected = by_id[station_id]
         st.caption(f"Records: {selected['first']:%d %b %Y, %H:%M} – {selected['last']:%d %b %Y, %H:%M} SGT. Gaps may occur within this range.")
         if demo:
             first_prediction = selected['first'] + timedelta(minutes=60)
             last_verified = selected['last'] - timedelta(minutes=30)
             st.caption(f'Demo predictions start at {first_prediction:%d %b, %H:%M}. '
                        f'Historical verification is available through {last_verified:%d %b, %H:%M} SGT.')
+    with map_panel:
+        station_map(stations, selected['id'])
+    left, right = st.columns([1, 1.5], gap='large')
+    with left:
+        st.subheader('Prediction inputs')
         earliest = max(selected['first'].date(), datetime(2017, 1, 1).date())
         latest = min(selected['last'].date(), datetime(2024, 12, 31).date())
         default = min(selected['first'] + timedelta(minutes=60), selected['last'])
@@ -147,6 +207,8 @@ def main():
     st.caption('Academic historical demonstration, not a live weather forecast. Probability estimates can be poorly calibrated, especially for rare heavy rainfall. Earlier years include model training/validation data; only 2024 was held out for testing.')
     st.caption('Source: NEA [Historical Rainfall across Singapore](https://data.gov.sg/collections/2279/view), '
                'made available under the [Singapore Open Data Licence](https://data.gov.sg/open-data-licence).')
+    st.caption('Map boundary: [geoBoundaries](https://www.geoboundaries.org/), derived from URA boundaries · '
+               '[ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/).')
 
 
 if __name__ == '__main__':

@@ -105,3 +105,16 @@ def test_year_boundary_and_duplicate_history(spark, tmp_path):
     frame.unionByName(frame.limit(1)).write.parquet(str(duplicate_path/'rainfall_2024'))
     with pytest.raises(InputError, match='duplicate'):
         RainfallPredictor(duplicate_path).predict('S50', when, 0.)
+
+
+def test_station_map_uses_latest_recorded_pair_and_missing_coordinates(spark, tmp_path):
+    rows = [('S2', WHEN, .1, 1.31, 103.81),
+            ('S2', WHEN+timedelta(minutes=5), .1, 1.32, 103.82),
+            ('S2', WHEN+timedelta(minutes=10), .1, 999., 103.83),
+            ('S10', WHEN, .1, None, None)]
+    frame = spark.createDataFrame(rows, 'station_id string, timestamp timestamp, rainfall double, location_latitude double, location_longitude double')
+    frame.write.parquet(str(tmp_path/'rainfall_2024'))
+    stations = RainfallPredictor(tmp_path).stations()
+    assert [s['id'] for s in stations] == ['S2', 'S10']
+    assert (stations[0]['latitude'], stations[0]['longitude']) == (1.32, 103.82)
+    assert stations[1]['latitude'] is None and stations[1]['longitude'] is None

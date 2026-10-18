@@ -88,20 +88,32 @@ class RainfallPredictor:
         self.observations = normalize_input(raw).withColumn('_epoch', F.col('prediction_time').cast('long'))
         # Retain subsecond information to reject malformed input rather than rounding.
         self.observations = self.observations.withColumn('_precise', F.col('prediction_time').cast('double'))
+        # Keep recorded coordinate pairs for the selector, without changing model inputs.
+        time_column = 'timestamp' if 'timestamp' in raw.columns else 'observation_time'
+        self.station_records = raw.select(
+            F.col('station_id').cast('string').alias('station_id'),
+            F.col(time_column).cast('timestamp').cast('long').alias('_epoch'),
+            (F.col('location_latitude').cast('double') if 'location_latitude' in raw.columns else F.lit(None).cast('double')).alias('latitude'),
+            (F.col('location_longitude').cast('double') if 'location_longitude' in raw.columns else F.lit(None).cast('double')).alias('longitude'))
 
     def stations(self):
         """Small catalog of stations actually present in the connected Parquet."""
         with self.lock:
-            rows = (self.observations.where(F.year('prediction_time').between(2017, 2024))
+            valid_location = (F.col('latitude').between(-90, 90)
+                              & F.col('longitude').between(-180, 180))
+            rows = (self.station_records.where(F.year(F.col('_epoch').cast('timestamp')).between(2017, 2024))
                     .groupBy('station_id').agg(F.min('_epoch').alias('first'),
-                                               F.max('_epoch').alias('last')).collect())
+                                               F.max('_epoch').alias('last'),
+                                               F.max(F.when(valid_location, F.struct('_epoch', 'latitude', 'longitude'))).alias('location')).collect())
         names = {}
         with (ROOT/'outputs/cleaning/station_name_mapping.csv').open(newline='') as f:
             for r in csv.DictReader(f):
                 names[r['station_id']] = r['standard_name']
         return sorted([{'id': r.station_id, 'name': names.get(r.station_id, r.station_id),
                         'first': datetime.fromtimestamp(r.first, SG),
-                        'last': datetime.fromtimestamp(r.last, SG)}
+                        'last': datetime.fromtimestamp(r.last, SG),
+                        'latitude': r.location.latitude if r.location else None,
+                        'longitude': r.location.longitude if r.location else None}
                        for r in rows if r.station_id],
                       key=lambda r: (0, int(r['id'][1:]), r['id'])
                       if r['id'].startswith('S') and r['id'][1:].isdigit()
