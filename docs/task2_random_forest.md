@@ -162,5 +162,16 @@ Precision is 95.18%, recall 1.74%, and F1 0.0342. At >1, >5 and >10 mm, no posit
 predictions are made at this cutoff. Precision is undefined, while recall and F1
 are zero because actual exceedance events exist. Do not present undefined
 precision as zero or infer good event detection from a low false-alarm count.
-Use the compact table in Section 6.2; a mostly zero precision/recall bar chart
-would obscure the undefined precision values.
+For consistency with the LR and GBT report figures, generate a grouped
+precision/recall bar chart:
+
+```bash
+MPLCONFIGDIR=/tmp/rainfall-matplotlib .venv-interface/bin/python src/plot_rf_classification.py
+```
+
+This writes `rf_precision_recall.png` (300 dpi) and `.svg` (vector) alongside the
+saved RF summaries. It uses the same blue/orange colours and 0–100% scale as the
+GBT figure. Undefined precision has no bar and is explicitly labelled N/A;
+zero recall is labelled 0.00%. The underlying classification table remains
+available. Place the RF subsection between LR and GBT in Section 6.2. No original
+model, manifest or numerical result is changed.
