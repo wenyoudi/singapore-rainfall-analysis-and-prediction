@@ -30,8 +30,9 @@ There is one small Snappy Parquet file under `rainfall_2024/` (approximately 28 
 - Optional subsequent-rainfall verification: through 2 January 23:25.
 - Earlier times lack the required preceding hour; later verification windows
   extend beyond the supplied observations. The interface handles these explicitly.
-- Defaults: first station S24, 1 January 2024 at 01:00 SGT (first supported
-  prediction time), and first threshold 0 mm.
+- Defaults: first station S24, 1 January 2024 at 00:00 SGT, and first threshold
+  0 mm. This first midnight lacks history; choose 01:00 or later on 1 January,
+  or midnight on 2 January, to make a prediction.
 - Optional wet-weather query: S24, 1 January 2024 at 14:10 SGT, threshold 5 mm.
   The saved GBT displays 54.9%; observed subsequent rainfall is 19.60 mm.
 - Counterexample: S50 at 13:50 on the same day, threshold 5 mm, predicts 67.9%,

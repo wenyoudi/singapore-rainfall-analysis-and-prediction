@@ -44,7 +44,8 @@ is cached for ten minutes. The app identifies demonstration data and shows its
 stations, dates and prediction/verification bounds. See [dataset provenance](../data/demo/README.md).
 This subset is not used to calculate the report's metrics and is not representative
 for evaluation. Input defaults use the first station and threshold: S24,
-1 January 2024 at 01:00 SGT (the first time with sufficient history), and 0 mm.
+1 January 2024 at 00:00 SGT, and 0 mm. That initial midnight lacks the preceding
+hour in the demo; choose 01:00 or later that day, or 2 January at 00:00.
 Only supplied observations can be queried.
 
 If the terminal reports `Port 8501 is not available`, the new server has not
