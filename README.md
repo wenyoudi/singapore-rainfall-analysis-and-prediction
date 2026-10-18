@@ -9,6 +9,9 @@ individual model results and the final test comparison. The Streamlit interface
 accepts station, historical time and rainfall threshold, retrieves historical
 observations and scores the saved GBT model. No retraining is needed.
 
+**Run the interface:** [demo quick start](#1-set-up-the-interface-environment) ·
+[full-data workflow](#3-try-the-interface-with-full-data).
+
 ## Repository structure
 
 | Location | Contents |
@@ -227,23 +230,56 @@ revision. Do not claim submission readiness solely because branches were merged.
 
 ## Interactive prediction interface
 
-Use the existing GBT model through a historical Streamlit dashboard. A fresh
-checkout includes a demonstration dataset, so no Vanda account, raw-data download
-or retraining is needed for this quick start. Install Python 3.11 and Java 11 or
-17 first. Windows users should run these commands in WSL2 (native Windows is not
-supported by the reused preparation module).
+The Streamlit app loads the committed GBT-05 Spark model. Choose a monitoring
+station, historical prediction time and rainfall threshold to estimate the
+probability that the station accumulates **more than the threshold in the next
+30 minutes**. No retraining is required.
+
+### 1. Set up the interface environment
+
+Use **Python 3.11** and **Java 11 or 17**. The commands below work in a macOS or
+Linux terminal. Windows users should use **WSL2**, with Python and Java installed
+inside WSL; native Windows is not supported by the reused preparation module.
+The interface has been tested on macOS; WSL execution remains unverified.
+
+The interface is currently on `task2/prediction-interface`. For a new checkout:
 
 ```bash
-python3.11 -m venv .venv-interface
-.venv-interface/bin/python -m pip install -r requirements-interface.txt
-unset RAINFALL_DATA_ROOT
-SPARK_LOCAL_IP=127.0.0.1 .venv-interface/bin/python -m streamlit run streamlit_app.py \
-  --server.address 127.0.0.1 --browser.gatherUsageStats false
+git clone --branch task2/prediction-interface \
+  https://github.com/wenyoudi/singapore-rainfall-analysis-and-prediction.git
+cd singapore-rainfall-analysis-and-prediction
 ```
 
-Open http://localhost:8501. The bundled **demonstration data** contains 1,728 real
-cleaned five-minute observations, covering **1 January 2024 00:00 through
-2 January 2024 23:55 SGT**, with 576 readings at each station:
+If you already have this branch, open a terminal in its repository root instead.
+Create a separate environment; the interface uses Spark 3.5.6 rather than the
+Spark 3.3.1 environment used for the recorded Task 1 and LR/RF runs.
+
+```bash
+python3.11 --version
+java -version
+python3.11 -m venv .venv-interface
+.venv-interface/bin/python -m pip install -r requirements-interface.txt
+```
+
+### 2. Run the included demonstration
+
+No raw-data download, Vanda account or additional map dependency is needed.
+From the repository root, run:
+
+```bash
+unset RAINFALL_DATA_ROOT
+export RAINFALL_MODEL=GBT
+SPARK_LOCAL_IP=127.0.0.1 .venv-interface/bin/python -m streamlit run streamlit_app.py \
+  --server.address 127.0.0.1 --server.port 8501 --browser.gatherUsageStats false
+```
+
+Open **http://localhost:8501**. Leave the terminal running; use **Ctrl+C** to stop
+the app. If port 8501 is occupied, change `--server.port 8501` to
+`--server.port 8503` and open http://localhost:8503 instead.
+
+The default data root is `data/demo/`. It contains **1,728 real cleaned five-minute
+observations**, with 576 readings per station, covering **1 January 2024 00:00
+through 2 January 2024 23:55 SGT**:
 
 | Station | Name |
 | --- | --- |
@@ -251,37 +287,143 @@ cleaned five-minute observations, covering **1 January 2024 00:00 through
 | S33 | Jurong Pier Road |
 | S50 | Clementi Road |
 
-Choose a station using the searchable dropdown or by clicking its labelled point
-on the Singapore map. Both controls stay synchronized; orange highlights the
-selected station. The demo shows its three stations, while connecting full data
-shows all available stations with recorded coordinates. The map uses a bundled
-boundary and needs no map API key or additional package.
+To try a prediction:
 
-Predictions are available from 1 January 01:00 through 2 January 23:55; historical
-verification is available through 2 January 23:25. Defaults follow the first
-station and threshold options: S24, 1 January 2024 at 01:00 SGT (the first time
-with a full preceding hour), and 0 mm.
+1. Select a station from the searchable dropdown or click its labelled point on
+   the Singapore map. Both controls stay synchronized; orange marks the selection.
+2. Choose a date and five-minute prediction time. The demonstration supports
+   predictions from **1 January 01:00 through 2 January 23:55 SGT**. Earlier times
+   lack the required preceding hour of observations.
+3. Select a threshold: **0, 1, 5 or 10 mm**. Click **Predict Rainfall**.
+4. Read the probability and preceding-hour rainfall chart. Optionally expand
+   **Verify against the historical outcome** and click **Show observed next
+   30 minutes**. Verification is available through **2 January 23:25 SGT**.
 
-For an optional wet-weather query, choose S24, 1 January 2024 at 14:10 SGT,
-threshold 5 mm: the saved GBT displays 54.9%, and the subsequently observed total
-is 19.60 mm. In contrast, S50 at 13:50 on the same day predicts 67.9% for >5 mm,
-but only 0.40 mm occurs. A high probability does not guarantee an event. These
-selected examples illustrate individual outcomes, not overall model performance.
-Values are calculated from the saved model and observations, not hardcoded.
+Defaults use the first station and threshold: S24, 1 January at 01:00 SGT, and
+0 mm. The target uses readings at t+5 through t+30; equality to the threshold is
+not an exceedance. All displayed times are Singapore time (UTC+8).
 
-**The subset is for interface demonstration only. It is not the evaluation
-dataset and does not replace the reported full experimental cohorts or metrics.**
-It is not representative enough for performance assessment. Source and cleaning
-provenance are recorded in [data/demo/README.md](data/demo/README.md).
+Two optional examples, both on 1 January 2024:
 
-For full station/date coverage, download the public annual CSVs, run our existing
-cleaning code and set `RAINFALL_DATA_ROOT` to the resulting Parquet root. Follow
-the [complete full-data workflow](docs/prediction_interface.md#connect-the-full-public-dataset)
-for exact commands that preserve the committed experiment summaries. The default
-is always `data/demo/`; `data/processed/` is used only when explicitly configured.
-The Vanda PBS job already configures your full cleaned data explicitly.
+| Station | Prediction time (SGT) | Threshold | Predicted probability | Observed next 30-minute rainfall |
+| --- | --- | --- | --- | --- |
+| S24 | 14:10 | 5 mm | 54.9% | 19.60 mm |
+| S50 | 13:50 | 5 mm | 67.9% | 0.40 mm |
 
-The app never trains a model; supported thresholds are 0, 1, 5 and 10 mm.
-Optional subsequent rainfall is labelled as historical verification and never
-enters the forecast features. See [the interface guide](docs/prediction_interface.md)
-for architecture, tests, Vanda launch and SSH tunnelling.
+The second event did not occur despite its higher predicted probability. These
+selected examples illustrate individual outcomes, not overall model quality.
+Values are calculated from the saved model and real observations, not hardcoded.
+
+**This subset is for interface demonstration only. It is not the evaluation
+dataset and does not replace the reported experimental cohorts or metrics.**
+See [demo provenance and rebuilding instructions](data/demo/README.md).
+
+### 3. Try the interface with full data
+
+The full raw CSVs, cleaned Parquet and prepared modelling dataset are excluded
+from Git. You can obtain the public data and clean it locally; a Vanda account is
+not required. If you already have the cleaned annual Parquet, skip to **Connect
+existing cleaned data** below.
+
+#### Download the annual source CSVs
+
+Open the NEA [Historical Rainfall across Singapore collection](https://data.gov.sg/collections/2279/view).
+Download the **full CSV for each year 2017–2024**, excluding 2016. Extract any
+archives, then place or rename the files to these exact paths:
+
+```text
+data/raw/HistoricalRainfallacrossSingapore2017.csv
+data/raw/HistoricalRainfallacrossSingapore2018.csv
+data/raw/HistoricalRainfallacrossSingapore2019.csv
+data/raw/HistoricalRainfallacrossSingapore2020.csv
+data/raw/HistoricalRainfallacrossSingapore2021.csv
+data/raw/HistoricalRainfallacrossSingapore2022.csv
+data/raw/HistoricalRainfallacrossSingapore2023.csv
+data/raw/HistoricalRainfallacrossSingapore2024.csv
+```
+
+Use complete CSV downloads rather than a paginated API sample. The original
+annual files used for this project total approximately 7.5 GB; allow additional
+disk space for cleaned Parquet, Spark temporary files and the environment.
+
+#### Clean and validate the observations
+
+Stop any running interface with **Ctrl+C**. From the repository root, run the
+existing cleaning and validation scripts in an isolated workspace. This keeps
+new summaries separate from the committed experimental results.
+
+```bash
+for year in {2017..2024}; do
+  ls -lh "data/raw/HistoricalRainfallacrossSingapore${year}.csv"
+done
+
+mkdir -p .local-cleaning/src .local-cleaning/data
+cp src/data_cleaning.py src/cleaning_validation.py .local-cleaning/src/
+test -e .local-cleaning/data/raw || ln -s "$PWD/data/raw" .local-cleaning/data/raw
+
+export PYSPARK_PYTHON="$PWD/.venv-interface/bin/python"
+export SPARK_LOCAL_IP=127.0.0.1
+
+.venv-interface/bin/spark-submit --master 'local[4]' --driver-memory 8g \
+  .local-cleaning/src/data_cleaning.py
+.venv-interface/bin/spark-submit --master 'local[4]' --driver-memory 8g \
+  .local-cleaning/src/cleaning_validation.py
+```
+
+These commands request four local threads and an 8 GB Java driver heap; additional
+RAM is needed for Python and the operating system. Adjust resources to suit your
+machine. Full cleaning is substantially heavier than running the demo.
+
+Continue only after both commands succeed and validation prints
+`VALIDATION: PASS structural checks`. Review `.local-cleaning/outputs/validation/`
+if it reports issues. Cleaned annual directories will be written beneath
+`.local-cleaning/data/processed/`, named `rainfall_2017` through `rainfall_2024`.
+These commands clean observations; they do not retrain or reevaluate the models.
+
+#### Connect existing cleaned data
+
+For the data generated above:
+
+```bash
+export RAINFALL_DATA_ROOT="$PWD/.local-cleaning/data/processed"
+export RAINFALL_MODEL=GBT
+SPARK_LOCAL_IP=127.0.0.1 .venv-interface/bin/python -m streamlit run streamlit_app.py \
+  --server.address 127.0.0.1 --server.port 8501 --browser.gatherUsageStats false
+```
+
+If your cleaned data is already elsewhere, replace the first line, for example:
+
+```bash
+export RAINFALL_DATA_ROOT="$PWD/data/processed"
+```
+
+The variable must point to the **parent of the annual directories**, not a single
+Parquet file or the LR-generated `prepared/` modelling dataset:
+
+```text
+YOUR_DATA_ROOT/
+├── rainfall_2017/
+├── rainfall_2018/
+├── ...
+└── rainfall_2024/
+```
+
+Open http://localhost:8501. The first scan may take time. Station choices, map
+points and date ranges now come from your connected data. Missing historical
+windows produce an error rather than treating missing rainfall as zero. Stations
+without valid coordinates remain selectable in the dropdown.
+
+The app always defaults to the demo when `RAINFALL_DATA_ROOT` is unset, even if
+full data exists in `data/processed/`. To return to the demo, stop the app, run
+`unset RAINFALL_DATA_ROOT`, and repeat the demo launch command. Restart the app
+whenever you change its data source or update inference code.
+
+The recorded full cleaning run used Spark 3.3.1 on Vanda. Cleaner functions and
+interface tests passed locally with Spark 3.5.6; the entire eight-year cleaning
+run has not been repeated on a laptop in this revision. Connecting full data
+allows broader historical replay; it does not change the saved model or reported
+performance results.
+
+For full data already on Vanda, see the [PBS and SSH-tunnel instructions](docs/prediction_interface.md#run-on-vanda-without-downloading-data).
+See the [interface guide](docs/prediction_interface.md) for architecture, coordinate
+handling, test commands and data-source attribution.
