@@ -5,9 +5,12 @@ DSA5208 group project using Singapore five-minute rainfall observations from
 rainfall at a station over the next 30 minutes exceeds a requested threshold.
 
 The repository includes preprocessing, analysis, three trained Spark pipelines,
-individual model results and the final test comparison. The station/time/threshold
-history-lookup command is still to be implemented; the saved pipelines currently
-accept prepared features. No retraining is needed to inspect the saved results.
+individual model results and the final test comparison. The Streamlit interface
+accepts station, historical time and rainfall threshold, retrieves historical
+observations and scores the saved GBT model. No retraining is needed.
+
+**Run the interface:** [demo quick start](#1-set-up-the-interface-environment) ·
+[full-data workflow](#3-try-the-interface-with-full-data).
 
 ## Repository structure
 
@@ -18,6 +21,7 @@ accept prepared features. No retraining is needed to inspect the saved results.
 | `task2/Model_GBT/` | GBT code, notebooks, trained pipeline and results |
 | `outputs/task2/` | Saved LR/RF models, individual results and comparison table |
 | `docs/` | Detailed execution instructions |
+| `data/demo/` | Real cleaned observations for the interface demo; not an evaluation dataset |
 | `tests/` | Small synthetic Spark tests and checks on saved Task 1 summaries/models |
 
 ## Data and common prediction definition
@@ -25,8 +29,9 @@ accept prepared features. No retraining is needed to inspect the saved results.
 Download the eight annual CSVs from
 [Historical Rainfall across Singapore](https://data.gov.sg/collections/2279/view).
 Place them at `data/raw/HistoricalRainfallacrossSingapore2017.csv` through
-`HistoricalRainfallacrossSingapore2024.csv`. Raw data, cleaned Parquet and the
-large prepared modelling dataset are excluded from Git.
+`HistoricalRainfallacrossSingapore2024.csv`. Full raw data, full cleaned Parquet and
+the large prepared modelling dataset are excluded from Git. A small real cleaned
+subset is included in `data/demo/` solely to demonstrate the interface.
 
 The authoritative preparation implementation is `src/task2_prepare.py`, originally
 used for LR. All three reported models used its shared prepared dataset:
@@ -178,7 +183,7 @@ predictions = model.transform(prepared_features)
 `prepared_features` must contain station_id (string), hour/month (integer),
 rainfall_previous_5m/30m/60m (numeric) and threshold_mm (numeric). Do not use future
 rainfall to construct predictors. Keep the entire pipeline directory; it includes
-fitted encoding. The required three-input history lookup is not yet implemented.
+fitted encoding. The Streamlit interface below provides the station/time/threshold history lookup.
 
 ## Results and comparison
 
@@ -218,6 +223,246 @@ training and test output, rather than a synthetic training test suite.
 
 Individual model branches remain intact. This main integration preserves Task 1,
 all three trained models, original run metadata and shared comparison outputs.
-Still to complete: the station/time/threshold history-lookup interface, final
-report/AI declaration, and the group submission package. Do not claim the project
-is submission-ready solely because the branches have been merged.
+Still to complete: final report/AI declaration and the group submission package.
+The interface has been checked locally; the user has also confirmed Vanda server
+startup. Full remote inference has not been independently verified in this
+revision. Do not claim submission readiness solely because branches were merged.
+
+## Interactive prediction interface
+
+The Streamlit app loads the committed GBT-05 Spark model. Choose a monitoring
+station, historical prediction time and rainfall threshold to estimate the
+probability that the station accumulates **more than the threshold in the next
+30 minutes**. No retraining is required.
+
+### 1. Set up the interface environment
+
+Use **Python 3.11** and **Java 11 or 17**. The commands below work in a macOS or
+Linux terminal. Windows users should use **WSL2**, with Python and Java installed
+inside WSL; native Windows is not supported by the reused preparation module.
+The interface has been tested on macOS; WSL execution remains unverified.
+
+The interface and bundled demo are included on `main`. For a new checkout:
+
+```bash
+git clone --branch main \
+  https://github.com/wenyoudi/singapore-rainfall-analysis-and-prediction.git
+cd singapore-rainfall-analysis-and-prediction
+```
+
+If you already have `main`, open a terminal in its repository root instead.
+Create a separate environment; the interface uses Spark 3.5.6 rather than the
+Spark 3.3.1 environment used for the recorded Task 1 and LR/RF runs.
+
+```bash
+python3.11 --version
+java -version
+python3.11 -m venv .venv-interface
+.venv-interface/bin/python -m pip install -r requirements-interface.txt
+```
+
+If `java -version` reports Java 21 or another version outside 11/17, select a
+supported JDK before launching Spark. On macOS with Homebrew:
+
+```bash
+brew install openjdk@17
+export JAVA_HOME="$(brew --prefix openjdk@17)/libexec/openjdk.jdk/Contents/Home"
+export PATH="$JAVA_HOME/bin:$PATH"
+java -version
+```
+
+The last command should report version 17. These exports apply to the current
+terminal; repeat them in a new terminal. They do not remove your other JDKs.
+Spark 3.5.6 lists Java 8/11/17 as supported; this project uses 11 or 17
+([Spark documentation](https://spark.apache.org/docs/3.5.6/)). On Linux/WSL,
+install/select Java 17 using your distribution's package manager instead.
+Activating the plotting `.venv` is unnecessary: the commands explicitly use
+`.venv-interface/bin/python`, regardless of the terminal's environment label.
+
+### 2. Run the included demonstration
+
+No raw-data download, Vanda account or additional map dependency is needed.
+From the repository root, run:
+
+```bash
+unset RAINFALL_DATA_ROOT
+export RAINFALL_MODEL=GBT
+SPARK_LOCAL_IP=127.0.0.1 .venv-interface/bin/python -m streamlit run streamlit_app.py \
+  --server.address 127.0.0.1 --server.port 8501 --browser.gatherUsageStats false
+```
+
+Open **http://localhost:8501**. Leave the terminal running; use **Ctrl+C** to stop
+the app. If port 8501 is occupied, change `--server.port 8501` to
+`--server.port 8503` and open http://localhost:8503 instead.
+
+If Streamlit prints **`Port 8501 is not available`**, another local app or SSH
+tunnel already owns that port; the new app has not started. Repeating the same
+command will not resolve the conflict. Use another free port, for example:
+
+```bash
+unset RAINFALL_DATA_ROOT
+export RAINFALL_MODEL=GBT
+SPARK_LOCAL_IP=127.0.0.1 .venv-interface/bin/python -m streamlit run streamlit_app.py \
+  --server.address 127.0.0.1 --server.port 8504 --browser.gatherUsageStats false
+```
+
+Then open **http://localhost:8504**. On macOS/Linux, inspect an occupied port with
+`lsof -nP -iTCP:8501 -sTCP:LISTEN`. Stop an old server with Ctrl+C in its own
+terminal if you want to reuse that port. The first-run Streamlit email prompt is
+optional; press Enter without entering an email to skip it.
+
+The default data root is `data/demo/`. It contains **4,608 real cleaned five-minute
+observations from eight stations**, with 576 readings per station, covering **1 January 2024 00:00
+through 2 January 2024 23:55 SGT**:
+
+| Station | Name |
+| --- | --- |
+| S24 | Upper Changi Road North |
+| S33 | Jurong Pier Road |
+| S50 | Clementi Road |
+| S104 | Woodlands Avenue 9 |
+| S109 | Ang Mo Kio Avenue 5 |
+| S115 | Tuas South Avenue 3 |
+| S116 | West Coast Highway |
+| S117 | Banyan Road |
+
+To try a prediction:
+
+1. Select a station from the searchable dropdown or click its labelled point on
+   the Singapore map. Both controls stay synchronized; orange marks the selection.
+2. Choose a date and five-minute prediction time. The demonstration supports
+   predictions from **1 January 01:00 through 2 January 23:55 SGT**. Earlier times
+   lack the required preceding hour of observations.
+3. Select a threshold: **0, 1, 5 or 10 mm**. Click **Predict Rainfall**.
+4. Read the probability and preceding-hour rainfall chart. Optionally expand
+   **Verify against the historical outcome** and click **Show observed next
+   30 minutes**. Verification is available through **2 January 23:25 SGT**.
+
+Defaults use the first station and threshold: S24, 1 January at 01:00 SGT, and
+0 mm. The target uses readings at t+5 through t+30; equality to the threshold is
+not an exceedance. All displayed times are Singapore time (UTC+8).
+
+Two optional examples, both on 1 January 2024:
+
+| Station | Prediction time (SGT) | Threshold | Predicted probability | Observed next 30-minute rainfall |
+| --- | --- | --- | --- | --- |
+| S24 | 14:10 | 5 mm | 54.9% | 19.60 mm |
+| S50 | 13:50 | 5 mm | 67.9% | 0.40 mm |
+
+The second event did not occur despite its higher predicted probability. These
+selected examples illustrate individual outcomes, not overall model quality.
+Values are calculated from the saved model and real observations, not hardcoded.
+
+**This subset is for interface demonstration only. It is not the evaluation
+dataset and does not replace the reported experimental cohorts or metrics.**
+See [demo provenance and rebuilding instructions](data/demo/README.md).
+
+### 3. Try the interface with full data
+
+The full raw CSVs, cleaned Parquet and prepared modelling dataset are excluded
+from Git. You can obtain the public data and clean it locally; a Vanda account is
+not required. If you already have the cleaned annual Parquet, skip to **Connect
+existing cleaned data** below.
+
+#### Download the annual source CSVs
+
+Open the NEA [Historical Rainfall across Singapore collection](https://data.gov.sg/collections/2279/view).
+Download the **full CSV for each year 2017–2024**, excluding 2016. Extract any
+archives, then place or rename the files to these exact paths:
+
+```text
+data/raw/HistoricalRainfallacrossSingapore2017.csv
+data/raw/HistoricalRainfallacrossSingapore2018.csv
+data/raw/HistoricalRainfallacrossSingapore2019.csv
+data/raw/HistoricalRainfallacrossSingapore2020.csv
+data/raw/HistoricalRainfallacrossSingapore2021.csv
+data/raw/HistoricalRainfallacrossSingapore2022.csv
+data/raw/HistoricalRainfallacrossSingapore2023.csv
+data/raw/HistoricalRainfallacrossSingapore2024.csv
+```
+
+Use complete CSV downloads rather than a paginated API sample. The original
+annual files used for this project total approximately 7.5 GB; allow additional
+disk space for cleaned Parquet, Spark temporary files and the environment.
+
+#### Clean and validate the observations
+
+Stop any running interface with **Ctrl+C**. From the repository root, run the
+existing cleaning and validation scripts in an isolated workspace. This keeps
+new summaries separate from the committed experimental results.
+
+```bash
+for year in {2017..2024}; do
+  ls -lh "data/raw/HistoricalRainfallacrossSingapore${year}.csv"
+done
+
+mkdir -p .local-cleaning/src .local-cleaning/data
+cp src/data_cleaning.py src/cleaning_validation.py .local-cleaning/src/
+test -e .local-cleaning/data/raw || ln -s "$PWD/data/raw" .local-cleaning/data/raw
+
+export PYSPARK_PYTHON="$PWD/.venv-interface/bin/python"
+export SPARK_LOCAL_IP=127.0.0.1
+
+.venv-interface/bin/spark-submit --master 'local[4]' --driver-memory 8g \
+  .local-cleaning/src/data_cleaning.py
+.venv-interface/bin/spark-submit --master 'local[4]' --driver-memory 8g \
+  .local-cleaning/src/cleaning_validation.py
+```
+
+These commands request four local threads and an 8 GB Java driver heap; additional
+RAM is needed for Python and the operating system. Adjust resources to suit your
+machine. Full cleaning is substantially heavier than running the demo.
+
+Continue only after both commands succeed and validation prints
+`VALIDATION: PASS structural checks`. Review `.local-cleaning/outputs/validation/`
+if it reports issues. Cleaned annual directories will be written beneath
+`.local-cleaning/data/processed/`, named `rainfall_2017` through `rainfall_2024`.
+These commands clean observations; they do not retrain or reevaluate the models.
+
+#### Connect existing cleaned data
+
+For the data generated above:
+
+```bash
+export RAINFALL_DATA_ROOT="$PWD/.local-cleaning/data/processed"
+export RAINFALL_MODEL=GBT
+SPARK_LOCAL_IP=127.0.0.1 .venv-interface/bin/python -m streamlit run streamlit_app.py \
+  --server.address 127.0.0.1 --server.port 8501 --browser.gatherUsageStats false
+```
+
+If your cleaned data is already elsewhere, replace the first line, for example:
+
+```bash
+export RAINFALL_DATA_ROOT="$PWD/data/processed"
+```
+
+The variable must point to the **parent of the annual directories**, not a single
+Parquet file or the LR-generated `prepared/` modelling dataset:
+
+```text
+YOUR_DATA_ROOT/
+├── rainfall_2017/
+├── rainfall_2018/
+├── ...
+└── rainfall_2024/
+```
+
+Open http://localhost:8501. The first scan may take time. Station choices, map
+points and date ranges now come from your connected data. Missing historical
+windows produce an error rather than treating missing rainfall as zero. Stations
+without valid coordinates remain selectable in the dropdown.
+
+The app always defaults to the demo when `RAINFALL_DATA_ROOT` is unset, even if
+full data exists in `data/processed/`. To return to the demo, stop the app, run
+`unset RAINFALL_DATA_ROOT`, and repeat the demo launch command. Restart the app
+whenever you change its data source or update inference code.
+
+The recorded full cleaning run used Spark 3.3.1 on Vanda. Cleaner functions and
+interface tests passed locally with Spark 3.5.6; the entire eight-year cleaning
+run has not been repeated on a laptop in this revision. Connecting full data
+allows broader historical replay; it does not change the saved model or reported
+performance results.
+
+For full data already on Vanda, see the [PBS and SSH-tunnel instructions](docs/prediction_interface.md#run-on-vanda-without-downloading-data).
+See the [interface guide](docs/prediction_interface.md) for architecture, coordinate
+handling, test commands and data-source attribution.

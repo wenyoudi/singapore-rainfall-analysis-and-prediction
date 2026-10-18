@@ -1,0 +1,92 @@
+{
+  "purpose": "Interface demonstration only; not a training or evaluation dataset.",
+  "source": "NEA Historical Rainfall across Singapore (2024)",
+  "source_url": "https://data.gov.sg/collections/2279/view",
+  "licence_url": "https://data.gov.sg/open-data-licence",
+  "source_file": "HistoricalRainfallacrossSingapore2024.csv",
+  "selected_source_rows_sha256": "cd3c99e9f6ac97470d28b776992c6694039a51a6894f9d4408e2880910c73367",
+  "selection": {
+    "station_ids": [
+      "S24",
+      "S33",
+      "S50",
+      "S104",
+      "S109",
+      "S115",
+      "S116",
+      "S117"
+    ],
+    "start_sgt": "2024-01-01",
+    "end_exclusive_sgt": "2024-01-03"
+  },
+  "cleaning": "data_cleaning.prepare_records + deduplicate_records; existing global station-name mapping",
+  "source_rows": 4608,
+  "duplicate_rows_removed": 0,
+  "rows": 4608,
+  "coverage": [
+    {
+      "station_id": "S104",
+      "station_name": "Woodlands Avenue 9",
+      "rows": 576,
+      "first_sgt": "2024-01-01 00:00:00",
+      "last_sgt": "2024-01-02 23:55:00",
+      "wet_readings": 5
+    },
+    {
+      "station_id": "S109",
+      "station_name": "Ang Mo Kio Avenue 5",
+      "rows": 576,
+      "first_sgt": "2024-01-01 00:00:00",
+      "last_sgt": "2024-01-02 23:55:00",
+      "wet_readings": 40
+    },
+    {
+      "station_id": "S115",
+      "station_name": "Tuas South Avenue 3",
+      "rows": 576,
+      "first_sgt": "2024-01-01 00:00:00",
+      "last_sgt": "2024-01-02 23:55:00",
+      "wet_readings": 5
+    },
+    {
+      "station_id": "S116",
+      "station_name": "West Coast Highway",
+      "rows": 576,
+      "first_sgt": "2024-01-01 00:00:00",
+      "last_sgt": "2024-01-02 23:55:00",
+      "wet_readings": 11
+    },
+    {
+      "station_id": "S117",
+      "station_name": "Banyan Road",
+      "rows": 576,
+      "first_sgt": "2024-01-01 00:00:00",
+      "last_sgt": "2024-01-02 23:55:00",
+      "wet_readings": 18
+    },
+    {
+      "station_id": "S24",
+      "station_name": "Upper Changi Road North",
+      "rows": 576,
+      "first_sgt": "2024-01-01 00:00:00",
+      "last_sgt": "2024-01-02 23:55:00",
+      "wet_readings": 67
+    },
+    {
+      "station_id": "S33",
+      "station_name": "Jurong Pier Road",
+      "rows": 576,
+      "first_sgt": "2024-01-01 00:00:00",
+      "last_sgt": "2024-01-02 23:55:00",
+      "wet_readings": 14
+    },
+    {
+      "station_id": "S50",
+      "station_name": "Clementi Road",
+      "rows": 576,
+      "first_sgt": "2024-01-01 00:00:00",
+      "last_sgt": "2024-01-02 23:55:00",
+      "wet_readings": 27
+    }
+  ]
+}
