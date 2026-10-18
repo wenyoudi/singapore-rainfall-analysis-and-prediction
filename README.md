@@ -242,15 +242,15 @@ Linux terminal. Windows users should use **WSL2**, with Python and Java installe
 inside WSL; native Windows is not supported by the reused preparation module.
 The interface has been tested on macOS; WSL execution remains unverified.
 
-The interface is currently on `task2/prediction-interface`. For a new checkout:
+The interface and bundled demo are included on `main`. For a new checkout:
 
 ```bash
-git clone --branch task2/prediction-interface \
+git clone --branch main \
   https://github.com/wenyoudi/singapore-rainfall-analysis-and-prediction.git
 cd singapore-rainfall-analysis-and-prediction
 ```
 
-If you already have this branch, open a terminal in its repository root instead.
+If you already have `main`, open a terminal in its repository root instead.
 Create a separate environment; the interface uses Spark 3.5.6 rather than the
 Spark 3.3.1 environment used for the recorded Task 1 and LR/RF runs.
 
