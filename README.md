@@ -194,6 +194,7 @@ also differ. Describe these as comparisons of implemented pipelines.
 
 - [LR results](outputs/task2/logistic_regression/1458499/README.md)
 - [RF results](outputs/task2/random_forest/1459817/README.md)
+- [RF classification table for Section 6.2](outputs/task2/random_forest/1459817/rf_classification.md)
 - [GBT results](task2/Model_GBT/results/README.md)
 - [Three-model Table 7](outputs/task2/model_comparison/table_7.md)
 

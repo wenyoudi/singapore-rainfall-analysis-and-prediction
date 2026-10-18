@@ -136,3 +136,31 @@ encoder, supply its widths with `--category-sizes STATION HOUR MONTH`.
 These are impurity-based training importances, not permutation effects or an
 ablation study. Correlated historical windows make individual rankings dependent
 on how the forest allocates splits.
+
+## Section 6.2: classification at probability cutoff 0.5
+
+Generate the supplementary classification table without Spark or model scoring:
+
+```bash
+python3 src/summarize_rf_classification.py
+```
+
+Outputs are `rf_classification.csv` (including all four confusion counts) and
+`rf_classification.md` in `outputs/task2/random_forest/1459817/`. Original model,
+manifest, probability metrics and calibration summaries are unchanged.
+
+The original evaluator bins probabilities using `min(9, floor(p * 10))`, so bins
+5–9 exactly correspond to positive predictions under the rule `p >= 0.5`.
+The script recovers positive counts from each bin's sample count and unrounded
+observed frequency, validates that they are integer counts within floating-point
+tolerance, and reconciles samples/positives against `test_metrics.json`.
+This supports the specified bin-aligned cutoff; arbitrary within-bin cutoffs
+cannot be recovered from these summaries.
+
+At >0 mm, RF predicts 7,364 positives: 7,009 true positives and 355 false positives.
+Precision is 95.18%, recall 1.74%, and F1 0.0342. At >1, >5 and >10 mm, no positive
+predictions are made at this cutoff. Precision is undefined, while recall and F1
+are zero because actual exceedance events exist. Do not present undefined
+precision as zero or infer good event detection from a low false-alarm count.
+Use the compact table in Section 6.2; a mostly zero precision/recall bar chart
+would obscure the undefined precision values.
