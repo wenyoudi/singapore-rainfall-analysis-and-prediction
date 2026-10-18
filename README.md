@@ -261,6 +261,24 @@ python3.11 -m venv .venv-interface
 .venv-interface/bin/python -m pip install -r requirements-interface.txt
 ```
 
+If `java -version` reports Java 21 or another version outside 11/17, select a
+supported JDK before launching Spark. On macOS with Homebrew:
+
+```bash
+brew install openjdk@17
+export JAVA_HOME="$(brew --prefix openjdk@17)/libexec/openjdk.jdk/Contents/Home"
+export PATH="$JAVA_HOME/bin:$PATH"
+java -version
+```
+
+The last command should report version 17. These exports apply to the current
+terminal; repeat them in a new terminal. They do not remove your other JDKs.
+Spark 3.5.6 lists Java 8/11/17 as supported; this project uses 11 or 17
+([Spark documentation](https://spark.apache.org/docs/3.5.6/)). On Linux/WSL,
+install/select Java 17 using your distribution's package manager instead.
+Activating the plotting `.venv` is unnecessary: the commands explicitly use
+`.venv-interface/bin/python`, regardless of the terminal's environment label.
+
 ### 2. Run the included demonstration
 
 No raw-data download, Vanda account or additional map dependency is needed.
@@ -276,6 +294,22 @@ SPARK_LOCAL_IP=127.0.0.1 .venv-interface/bin/python -m streamlit run streamlit_a
 Open **http://localhost:8501**. Leave the terminal running; use **Ctrl+C** to stop
 the app. If port 8501 is occupied, change `--server.port 8501` to
 `--server.port 8503` and open http://localhost:8503 instead.
+
+If Streamlit prints **`Port 8501 is not available`**, another local app or SSH
+tunnel already owns that port; the new app has not started. Repeating the same
+command will not resolve the conflict. Use another free port, for example:
+
+```bash
+unset RAINFALL_DATA_ROOT
+export RAINFALL_MODEL=GBT
+SPARK_LOCAL_IP=127.0.0.1 .venv-interface/bin/python -m streamlit run streamlit_app.py \
+  --server.address 127.0.0.1 --server.port 8504 --browser.gatherUsageStats false
+```
+
+Then open **http://localhost:8504**. On macOS/Linux, inspect an occupied port with
+`lsof -nP -iTCP:8501 -sTCP:LISTEN`. Stop an old server with Ctrl+C in its own
+terminal if you want to reuse that port. The first-run Streamlit email prompt is
+optional; press Enter without entering an email to skip it.
 
 The default data root is `data/demo/`. It contains **1,728 real cleaned five-minute
 observations**, with 576 readings per station, covering **1 January 2024 00:00

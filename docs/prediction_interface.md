@@ -9,6 +9,8 @@ There is no model training, probability adjustment or simulated output.
 ## Requirements
 
 - Python 3.11 recommended (local checks used 3.11); Java 11 or 17 available on PATH.
+  If Java 21 is selected, follow the [README's Java setup](../README.md#1-set-up-the-interface-environment)
+  to select Java 17 before launching this Spark 3.5.6 environment.
 - `requirements-interface.txt`: Streamlit 1.56.0 and PySpark 3.5.6, matching GBT.
   Use a separate environment from the Spark 3.3.1 training and plotting setups.
 - The committed GBT-05 model, already included in this repository.
@@ -43,6 +45,11 @@ This subset is not used to calculate the report's metrics and is not representat
 for evaluation. Input defaults use the first station and threshold: S24,
 1 January 2024 at 01:00 SGT (the first time with sufficient history), and 0 mm.
 Only supplied observations can be queried.
+
+If the terminal reports `Port 8501 is not available`, the new server has not
+started. Use `--server.port 8504` and open http://localhost:8504, or stop the old
+server in its own terminal. The optional Streamlit email prompt can be skipped
+with Enter. See the [README troubleshooting instructions](../README.md#2-run-the-included-demonstration).
 
 Optional wet-weather example: S24 at 14:10 SGT on 1 January, threshold 5 mm,
 predicts 54.9%; the observed subsequent total is 19.60 mm. The previous S50
