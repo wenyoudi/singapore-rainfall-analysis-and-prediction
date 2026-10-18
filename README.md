@@ -203,19 +203,21 @@ All models lose to their training-frequency constant baseline at >10 mm.
 
 ## Verification and remaining submission work
 
-For the tested local setup, activate a compatible Java runtime and use the
-plotting environment above, then install the test dependencies:
+For the full integrated suite, create the interface environment described below
+and select Java 11 or 17, then install the plotting and test dependencies into it:
 
 ```bash
-.venv/bin/python -m pip install pyspark==3.5.3 -r requirements-test.txt
-SPARK_LOCAL_IP=127.0.0.1 .venv/bin/python -m pytest -q tests
+.venv-interface/bin/python -m pip install -r requirements-plots.txt -r requirements-test.txt
+SPARK_LOCAL_IP=127.0.0.1 MPLCONFIGDIR=/tmp/rainfall-test-matplotlib \
+  .venv-interface/bin/python -m pytest -q tests
 ```
 
 The full integrated suite requires Spark 3.5.x to load the GBT model. The Vanda
-LR/RF PBS jobs run their scoped synthetic tests under Spark 3.3.1. During
-integration, all **81 tests passed locally** under Spark 3.5.3/Python 3.11, including
-loading and scoring all three committed pipelines with historical features only
-and an unseen station. This is a local smoke check, not full-scale retraining.
+LR/RF PBS jobs run their scoped synthetic tests under Spark 3.3.1. After interface
+integration on 18 October 2026, all **94 tests passed locally** with Spark 3.5.6,
+Python 3.11 and Java 17. These cover Task 1, shared preparation, all three saved
+pipelines, comparison outputs and the eight-station interface demo. This is local
+verification, not full-scale retraining or a new performance evaluation.
 
 Tests use synthetic data, compact saved summaries and committed model artifacts;
 no full-data training is launched. GBT notebooks additionally contain recorded
