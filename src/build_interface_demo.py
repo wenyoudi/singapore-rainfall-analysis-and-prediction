@@ -14,7 +14,7 @@ from pyspark.sql import SparkSession, functions as F
 from data_cleaning import prepare_records, deduplicate_records
 
 ROOT = Path(__file__).resolve().parents[1]
-STATIONS = ('S24', 'S33', 'S50')
+STATIONS = ('S24', 'S33', 'S50', 'S104', 'S109', 'S115', 'S116', 'S117')
 START, END = '2024-01-01', '2024-01-03'  # End exclusive, Singapore time.
 
 

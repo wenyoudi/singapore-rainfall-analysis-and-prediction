@@ -56,10 +56,15 @@ def test_bundled_demo_default_real_model_and_coverage(spark, monkeypatch):
     monkeypatch.delenv('RAINFALL_DATA_ROOT', raising=False)
     predictor = RainfallPredictor(ROOT/'data/demo')
     manifest = json.loads((ROOT/'data/demo/manifest.json').read_text())
-    assert predictor.observations.count() == manifest['rows'] == 1728
-    assert [s['id'] for s in predictor.stations()] == ['S24', 'S33', 'S50']
-    assert predictor.observations.select('station_id', 'prediction_time').distinct().count() == 1728
+    assert predictor.observations.count() == manifest['rows'] == 4608
+    assert [s['id'] for s in predictor.stations()] == ['S24', 'S33', 'S50', 'S104', 'S109', 'S115', 'S116', 'S117']
+    assert predictor.observations.select('station_id', 'prediction_time').distinct().count() == 4608
     when = datetime(2024, 1, 1, 1, tzinfo=SG)
+    for station in predictor.stations():
+        result = predictor.predict(station['id'], when, 0.)
+        assert 0 <= result['probability'] <= 1
+        assert len(result['history']) == 12
+        assert predictor.verify(station['id'], when, 0.) is not None
     for threshold in [0., 1., 5., 10.]:
         reference = prepare_features(predictor.observations, threshold).where(
             (F.col('station_id') == 'S24') & (F.col('prediction_time') == F.lit(when)))
@@ -75,7 +80,7 @@ def test_bundled_demo_default_real_model_and_coverage(spark, monkeypatch):
     at = AppTest.from_file(str(ROOT/'streamlit_app.py'), default_timeout=90).run()
     assert not at.exception
     assert any('Demonstration data' in x.value and 'not the dataset used to evaluate' in x.value for x in at.info)
-    assert len(at.selectbox[0].options) == 3
+    assert len(at.selectbox[0].options) == 8
     assert at.selectbox[0].value == 'S24'
     assert at.selectbox[1].value == 0.
     assert at.time_input[0].value.hour == 1 and at.time_input[0].value.minute == 0

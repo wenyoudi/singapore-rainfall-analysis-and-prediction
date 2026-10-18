@@ -16,10 +16,15 @@ CSV. No readings were simulated or missing values filled.
 | S24 | Upper Changi Road North | 576 | 67 |
 | S33 | Jurong Pier Road | 576 | 14 |
 | S50 | Clementi Road | 576 | 27 |
+| S104 | Woodlands Avenue 9 | 576 | 5 |
+| S109 | Ang Mo Kio Avenue 5 | 576 | 40 |
+| S115 | Tuas South Avenue 3 | 576 | 5 |
+| S116 | West Coast Highway | 576 | 11 |
+| S117 | Banyan Road | 576 | 18 |
 
 Each station covers **1 January 2024 00:00 through 2 January 2024 23:55 SGT**,
-with complete five-minute observations: **1,728 rows total**. There is one small
-Snappy Parquet file under `rainfall_2024/` (approximately 28 KB).
+with complete five-minute observations at all eight stations: **4,608 rows total**.
+There is one small Snappy Parquet file under `rainfall_2024/` (approximately 28 KiB).
 
 - Prediction timestamps: 1 January 01:00 through 2 January 23:55, every five minutes.
 - Optional subsequent-rainfall verification: through 2 January 23:25.

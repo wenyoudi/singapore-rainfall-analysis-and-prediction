@@ -311,8 +311,8 @@ Then open **http://localhost:8504**. On macOS/Linux, inspect an occupied port wi
 terminal if you want to reuse that port. The first-run Streamlit email prompt is
 optional; press Enter without entering an email to skip it.
 
-The default data root is `data/demo/`. It contains **1,728 real cleaned five-minute
-observations**, with 576 readings per station, covering **1 January 2024 00:00
+The default data root is `data/demo/`. It contains **4,608 real cleaned five-minute
+observations from eight stations**, with 576 readings per station, covering **1 January 2024 00:00
 through 2 January 2024 23:55 SGT**:
 
 | Station | Name |
@@ -320,6 +320,11 @@ through 2 January 2024 23:55 SGT**:
 | S24 | Upper Changi Road North |
 | S33 | Jurong Pier Road |
 | S50 | Clementi Road |
+| S104 | Woodlands Avenue 9 |
+| S109 | Ang Mo Kio Avenue 5 |
+| S115 | Tuas South Avenue 3 |
+| S116 | West Coast Highway |
+| S117 | Banyan Road |
 
 To try a prediction:
 
